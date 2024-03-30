@@ -5758,11 +5758,6 @@ blockquote::before {
   margin-bottom: 3rem;
 }
 
-
-.badge {
-  font-size: 13px; /* Adjust font size as needed */
-  margin-bottom: 5px;
-}
 .skills__items:last-child {
   margin-bottom: 0;
 }
