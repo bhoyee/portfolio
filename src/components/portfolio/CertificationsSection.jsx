@@ -32,15 +32,16 @@ export default function CertificationsSection() {
   const list = (apiCerts?.length ? apiCerts : localCertifications) || [];
   const shown = expanded ? list : list.slice(0, visibleCount);
 
-  if (list.length === 0) return null;
-
   useEffect(() => {
+    if (list.length === 0) return;
     const onKeyDown = (e) => {
       if (e.key === "Escape") setActive(null);
     };
     window.addEventListener?.("keydown", onKeyDown);
     return () => window.removeEventListener?.("keydown", onKeyDown);
-  }, []);
+  }, [list.length]);
+
+  if (list.length === 0) return null;
 
   return (
     <section
