@@ -1,50 +1,55 @@
-# portfolio
+# Salisu Abdulhamid — Portfolio
+
+Software Engineer with 5+ years of experience building and shipping production web applications. I focus on clean UI, reliable APIs, and pragmatic architecture that scales with real-world requirements.
+
+This repo contains my portfolio site (React + Vite) with a blog, likes, comments, and a contact form designed to run on typical shared hosting (PHP + MySQL).
+
+## Highlights
+
+- Modern, responsive portfolio layout with smooth navigation
+- Blog list + blog detail pages
+- Like + share + comments on blog posts
+- Contact form that saves messages server-side
+- Works as a static site with optional PHP APIs
+
+## Tech stack
+
+- Frontend: React, Vite, Tailwind CSS, TanStack Query, Framer Motion
+- Backend (shared hosting): PHP + MySQL (in `public/api`)
 
 ## Run locally (Windows / PowerShell)
 
-1) Install dependencies:
+- Install: `npm.cmd install`
+- Dev server: `npm.cmd run dev`
 
-- `npm.cmd install`
+If PowerShell blocks `npm` because `npm.ps1` isn't digitally signed:
 
-2) Start dev server:
+- Use `npm.cmd ...` (as shown above), or
+- Run `.\dev.cmd`
 
-- `npm.cmd run dev`
-
-If PowerShell blocks `npm` because `npm.ps1` isn't digitally signed, use:
-
-- `npm.cmd ...` (as shown above), or
-- `.\dev.cmd`
-
-## Blog content (no Base44)
+## Blog content
 
 Blog posts can come from either:
 
-- **PHP + MySQL** (recommended for shared hosting), via `public/api/posts.php`, or
-- Local Markdown files in `src/content/blog/*.md` (fallback if the backend isn't available).
+- **PHP + MySQL** (recommended for shared hosting), via `public/api/posts.php`
+- Local Markdown files in `src/content/blog/*.md` (fallback if the backend isn't available)
 
-Note: `entities/*.json` are **schemas** (they describe fields), not blog post content.
+Note: `entities/*.json` are schemas (they describe fields), not blog post content.
 
-## Likes, comments, contact (shared hosting PHP + MySQL)
+## Shared hosting setup (PHP + MySQL)
 
-The frontend calls these endpoints:
+The frontend calls:
 
-- `public/api/posts.php`
-- `public/api/likes.php`
-- `public/api/comments.php`
-- `public/api/contact.php`
+- `public/api/posts.php` (blog posts)
+- `public/api/likes.php` (likes + count)
+- `public/api/comments.php` (comments)
+- `public/api/contact.php` (contact messages)
 
-Setup:
+Steps:
 
 1) Create a MySQL database and user on your hosting.
 2) Import `public/api/schema.sql` (or create equivalent tables via your migrations).
-3) Copy `public/api/db-config.sample.php` to `public/api/db-config.php` and set credentials (do this on the server).
-4) Deploy `dist/` to your web root (e.g. `public_html/`). Make sure `dist/api/*.php` is deployed too (it comes from `public/api`).
+3) Copy `public/api/db-config.sample.php` → `public/api/db-config.php` and set credentials (on the server).
+4) Deploy `dist/` to your web root (e.g. `public_html/`). Ensure `dist/api/*.php` exists (it comes from `public/api`).
 
-If the PHP API isn't available, the UI falls back to local-only demo storage in the browser (so likes/comments won't be shared across visitors).
-
-## Base44 (optional)
-
-Base44 is disabled by default. To enable the Base44 Vite plugin, start Vite with:
-
-- `USE_BASE44=true npm.cmd run dev`
-
+If the PHP API isn't available, likes/comments fall back to local-only demo storage in the browser (so they won't be shared across visitors).
