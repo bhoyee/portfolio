@@ -1,9 +1,27 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Award, ExternalLink } from "lucide-react";
 import { certifications } from "@/data/certifications";
 
 export default function CertificationsSection() {
+  const [expanded, setExpanded] = useState(false);
+  const defaultVisible = useMemo(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return 6;
+    return window.matchMedia("(min-width: 768px)").matches ? 6 : 3;
+  }, []);
+  const [visibleCount, setVisibleCount] = useState(defaultVisible);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mql = window.matchMedia("(min-width: 768px)");
+    const update = () => setVisibleCount(mql.matches ? 6 : 3);
+    update();
+    mql.addEventListener?.("change", update);
+    return () => mql.removeEventListener?.("change", update);
+  }, []);
+
+  const shown = expanded ? certifications : certifications.slice(0, visibleCount);
+
   return (
     <section
       id="certifications"
@@ -45,8 +63,9 @@ export default function CertificationsSection() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {certifications.map((cert, index) => (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {shown.map((cert, index) => (
               <motion.div
                 key={`${cert.name}-${index}`}
                 initial={{ opacity: 0, y: 30 }}
@@ -93,11 +112,25 @@ export default function CertificationsSection() {
                   </div>
                 </div>
               </motion.div>
-            ))}
-          </div>
+              ))}
+            </div>
+
+            {certifications.length > visibleCount && (
+              <div className="mt-10 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setExpanded((v) => !v)}
+                  className="inline-flex items-center justify-center rounded-full border border-slate-300/80 dark:border-white/10 bg-white/80 dark:bg-white/5 px-5 py-2 text-sm font-medium text-slate-800 dark:text-slate-100 hover:border-emerald-500/60 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+                >
+                  {expanded
+                    ? "Show less"
+                    : `Show all certifications (${certifications.length})`}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>
   );
 }
-
