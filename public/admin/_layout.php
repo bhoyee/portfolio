@@ -43,6 +43,11 @@ function admin_page_header($title) {
       .flash.err { border-color: rgba(239,68,68,.55); }
       .row { display:flex; gap: 12px; align-items:center; justify-content: space-between; }
       .actions { display:flex; gap: 10px; align-items:center; }
+      .toolbar { display:flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+      .toolbtn { padding: 8px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); cursor: pointer; color:#e5e7eb; font-size: 13px; }
+      .toolbtn:hover { border-color: rgba(16,185,129,.6); }
+      .editor { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; line-height: 1.5; }
+      .help { font-size: 12px; color: rgba(229,231,235,.7); margin-top: 6px; }
     </style>
   </head>
   <body>
