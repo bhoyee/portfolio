@@ -2,7 +2,7 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
-function respond($status, $payload) {
+function db_respond($status, $payload) {
   http_response_code($status);
   echo json_encode($payload);
   exit;
@@ -52,7 +52,7 @@ function load_db_config() {
 
 $cfg = load_db_config();
 if (empty($cfg['host']) || empty($cfg['name']) || empty($cfg['user']) || $cfg['pass'] === null) {
-  respond(500, [
+  db_respond(500, [
     'error' => 'Database config missing',
     'hint' => 'Create public/api/db-config.php (copy db-config.sample.php) OR set DB_HOST/DB_NAME/DB_USER/DB_PASS env vars on the server.',
   ]);
@@ -65,7 +65,7 @@ try {
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
   ]);
 } catch (Exception $e) {
-  respond(500, ['error' => 'Database connection failed']);
+  db_respond(500, ['error' => 'Database connection failed']);
 }
 
 function get_pdo() {
