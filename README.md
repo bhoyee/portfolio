@@ -53,3 +53,20 @@ Steps:
 4) Deploy `dist/` to your web root (e.g. `public_html/`). Ensure `dist/api/*.php` exists (it comes from `public/api`).
 
 If the PHP API isn't available, likes/comments fall back to local-only demo storage in the browser (so they won't be shared across visitors).
+
+## CI/CD (GitHub Actions → shared hosting)
+
+This repo includes a workflow that builds the site and deploys `dist/` to shared hosting when you push to the `staging` branch:
+
+- `.github/workflows/deploy-staging.yml`
+
+Configure these GitHub repo secrets:
+
+- `SSH_HOST` — your hosting SSH hostname (or IP)
+- `SSH_PORT` — usually `22`
+- `SSH_USER` — SSH username
+- `SSH_PRIVATE_KEY` — private key for the SSH user (no passphrase recommended for Actions)
+- `SSH_TARGET_DIR` — web root directory (example: `/home/<user>/public_html`)
+- `DEPLOY_CLEAN` — optional: set to `true` to delete target folder contents before upload
+
+The workflow runs `npm ci`, `npm run build`, then uploads `dist/*` to `SSH_TARGET_DIR`.
