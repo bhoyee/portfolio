@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useTheme } from "./ThemeProvider";
+import { toast } from "@/components/ui/use-toast";
 
 const navLinks = [
   { label: "Skills", href: "#skills" },
@@ -35,7 +36,14 @@ export default function Navigation() {
       if (isPortfolioPage) {
         // On portfolio page, just scroll
         const el = document.querySelector(href);
-        if (el) el.scrollIntoView({ behavior: "smooth" });
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        } else if (href === "#certifications") {
+          toast({
+            title: "Certifications",
+            description: "No certifications are available at the moment. Please check back soon.",
+          });
+        }
       } else {
         // On other pages, navigate to portfolio with hash
         navigate(createPageUrl('Portfolio') + href);
