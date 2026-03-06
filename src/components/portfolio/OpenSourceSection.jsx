@@ -1,44 +1,37 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import { GitFork, Star, ExternalLink, GitPullRequest } from "lucide-react";
+import { fetchOpenSource } from "@/api/openSourceApi";
+import { openSourceProjects as localOpenSourceProjects } from "@/data/openSource";
 
-const openSourceProjects = [
-  {
-    name: "Project Name",
-    description: "A brief description of what this open source project does and what problem it solves.",
-    repo: "https://github.com/bhoyee/project",
-    stars: 128,
-    forks: 34,
-    language: "TypeScript",
-    languageColor: "bg-blue-500",
-    contribution: "Maintainer",
-    tags: ["API", "CLI", "Developer Tools"],
-  },
-  {
-    name: "Another OSS Project",
-    description: "Description of your contribution to this project and what you built or fixed.",
-    repo: "https://github.com/bhoyee/another-project",
-    stars: 56,
-    forks: 12,
-    language: "C#",
-    languageColor: "bg-purple-500",
-    contribution: "Contributor",
-    tags: [".NET", "Library"],
-  },
-  {
-    name: "Open Source Tool",
-    description: "A utility or tool you created or contributed to that helps the developer community.",
-    repo: "https://github.com/bhoyee/oss-tool",
-    stars: 210,
-    forks: 47,
-    language: "JavaScript",
-    languageColor: "bg-yellow-400",
-    contribution: "Maintainer",
-    tags: ["Tooling", "Automation"],
-  },
-];
+function languageDotClass(language) {
+  const l = (language || "").toLowerCase();
+  if (l.includes("typescript")) return "bg-blue-500";
+  if (l.includes("javascript")) return "bg-yellow-400";
+  if (l === "php") return "bg-indigo-500";
+  if (l.includes("c#") || l.includes("csharp") || l.includes(".net")) return "bg-purple-500";
+  if (l.includes("python")) return "bg-amber-500";
+  if (l.includes("go")) return "bg-cyan-500";
+  if (l.includes("java")) return "bg-orange-500";
+  return "bg-slate-400";
+}
 
 export default function OpenSourceSection() {
+  const { data: apiData, isError } = useQuery({
+    queryKey: ["open-source"],
+    queryFn: () => fetchOpenSource({ limit: 50 }),
+    staleTime: 10 * 60 * 1000,
+    retry: 1,
+  });
+
+  const enabled = apiData?.enabled !== false;
+  const apiItems = apiData?.items || [];
+
+  const list = (apiItems.length ? apiItems : localOpenSourceProjects) || [];
+
+  if (!enabled || list.length === 0) return null;
+
   return (
     <section id="open-source" className="py-24 sm:py-32 bg-slate-50 dark:bg-slate-950 relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-emerald-200/20 via-transparent to-transparent dark:from-emerald-900/20" />
@@ -69,9 +62,9 @@ export default function OpenSourceSection() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {openSourceProjects.map((project, index) => (
+          {list.map((project, index) => (
             <motion.div
-              key={project.name}
+              key={project.id ?? project.name}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -88,7 +81,7 @@ export default function OpenSourceSection() {
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">{project.name}</h3>
                   </div>
                   <a
-                    href={project.repo}
+                    href={project.repoUrl ?? project.repo}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 hover:text-emerald-500 transition-colors"
@@ -102,7 +95,7 @@ export default function OpenSourceSection() {
                 </p>
 
                 <div className="flex flex-wrap gap-2">
-                  {project.tags.map((tag) => (
+                  {(project.tags || []).map((tag) => (
                     <span
                       key={tag}
                       className="text-xs px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10"
@@ -114,31 +107,45 @@ export default function OpenSourceSection() {
 
                 <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-white/10">
                   <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
-                    <span className="flex items-center gap-1">
-                      <span className={`w-2.5 h-2.5 rounded-full ${project.languageColor}`} />
-                      {project.language}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Star className="w-3.5 h-3.5" />
-                      {project.stars}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <GitFork className="w-3.5 h-3.5" />
-                      {project.forks}
-                    </span>
+                    {project.language ? (
+                      <span className="flex items-center gap-1">
+                        <span className={`w-2.5 h-2.5 rounded-full ${languageDotClass(project.language)}`} />
+                        {project.language}
+                      </span>
+                    ) : null}
+                    {typeof project.stars === "number" ? (
+                      <span className="flex items-center gap-1">
+                        <Star className="w-3.5 h-3.5" />
+                        {project.stars}
+                      </span>
+                    ) : null}
+                    {typeof project.forks === "number" ? (
+                      <span className="flex items-center gap-1">
+                        <GitFork className="w-3.5 h-3.5" />
+                        {project.forks}
+                      </span>
+                    ) : null}
                   </div>
-                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                    project.contribution === "Maintainer"
-                      ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
-                      : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                  }`}>
-                    {project.contribution}
-                  </span>
+                  {project.contribution ? (
+                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                      project.contribution === "Maintainer"
+                        ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                        : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                    }`}>
+                      {project.contribution}
+                    </span>
+                  ) : null}
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
+
+        {isError ? (
+          <div className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
+            Open Source data is temporarily unavailable.
+          </div>
+        ) : null}
       </div>
     </section>
   );

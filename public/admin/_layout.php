@@ -58,6 +58,7 @@ function admin_page_header($title) {
           <a class="pill" href="/admin/index.php">Dashboard</a>
           <a class="pill" href="/admin/posts.php">Blog Posts</a>
           <a class="pill" href="/admin/certifications.php">Certifications</a>
+          <a class="pill" href="/admin/open-source.php">Open Source</a>
           <a class="pill" href="/admin/resume.php">Resume</a>
           <?php if (admin_is_logged_in()): ?>
             <a class="pill" href="/admin/logout.php">Logout</a>
