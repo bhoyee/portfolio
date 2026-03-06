@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 final class ApiIntegrationTest extends TestCase
 {
     private static $proc = null;
+    private static array $pipes = [];
     private static string $baseUrl = '';
 
     private static function env(string $key): ?string
@@ -106,7 +107,8 @@ final class ApiIntegrationTest extends TestCase
         $docroot = realpath(__DIR__ . '/../../public');
         if ($docroot === false) throw new RuntimeException('Missing public/ directory');
 
-        $cmd = 'php -S 127.0.0.1:' . $port . ' -t ' . escapeshellarg($docroot);
+        $php = defined('PHP_BINARY') ? PHP_BINARY : 'php';
+        $cmd = escapeshellarg($php) . ' -S 127.0.0.1:' . $port . ' -t ' . escapeshellarg($docroot);
         $descriptors = [
             0 => ['pipe', 'r'],
             1 => ['pipe', 'w'],
@@ -119,23 +121,44 @@ final class ApiIntegrationTest extends TestCase
         putenv('MAIL_LOG_PATH=' . $mailLog);
 
         // Let the server inherit the current environment (DB_* from CI, MAIL_* from putenv above).
-        self::$proc = proc_open($cmd, $descriptors, $pipes, realpath(__DIR__ . '/../../'));
+        self::$pipes = [];
+        self::$proc = proc_open($cmd, $descriptors, self::$pipes, realpath(__DIR__ . '/../../'));
         if (!is_resource(self::$proc)) throw new RuntimeException('Failed to start PHP built-in server');
 
         self::$baseUrl = 'http://127.0.0.1:' . $port;
 
+        foreach (self::$pipes as $p) {
+            if (is_resource($p)) {
+                stream_set_blocking($p, false);
+            }
+        }
+
+        $status = proc_get_status(self::$proc);
+        if (is_array($status) && ($status['running'] ?? false) !== true) {
+            $out = '';
+            $err = '';
+            if (isset(self::$pipes[1]) && is_resource(self::$pipes[1])) $out = stream_get_contents(self::$pipes[1]) ?: '';
+            if (isset(self::$pipes[2]) && is_resource(self::$pipes[2])) $err = stream_get_contents(self::$pipes[2]) ?: '';
+            throw new RuntimeException('PHP built-in server exited early. stdout=' . $out . ' stderr=' . $err);
+        }
+
         // Wait until server responds.
         $ready = false;
-        for ($i = 0; $i < 40; $i++) {
-            $ctx = stream_context_create(['http' => ['ignore_errors' => true]]);
-            $resp = @file_get_contents(self::$baseUrl . '/api/posts.php?limit=1', false, $ctx);
-            if ($resp !== false && $resp !== '') {
+        for ($i = 0; $i < 120; $i++) {
+            $resp = self::request('GET', '/api/posts.php?limit=1');
+            if (($resp['status'] ?? 0) > 0) {
                 $ready = true;
                 break;
             }
-            usleep(100_000);
+            usleep(100_000); // 12s max
         }
-        if (!$ready) throw new RuntimeException('PHP built-in server did not become ready');
+        if (!$ready) {
+            $out = '';
+            $err = '';
+            if (isset(self::$pipes[1]) && is_resource(self::$pipes[1])) $out = stream_get_contents(self::$pipes[1]) ?: '';
+            if (isset(self::$pipes[2]) && is_resource(self::$pipes[2])) $err = stream_get_contents(self::$pipes[2]) ?: '';
+            throw new RuntimeException('PHP built-in server did not become ready. stdout=' . $out . ' stderr=' . $err);
+        }
     }
 
     private static function stopServer(): void
@@ -144,38 +167,109 @@ final class ApiIntegrationTest extends TestCase
             @proc_terminate(self::$proc);
             @proc_close(self::$proc);
         }
+        foreach (self::$pipes as $p) {
+            if (is_resource($p)) {
+                @fclose($p);
+            }
+        }
         self::$proc = null;
+        self::$pipes = [];
     }
 
     private static function request(string $method, string $path, ?array $jsonBody = null): array
     {
-        $headers = "Accept: application/json\r\n";
-        $content = null;
+        $urlParts = parse_url(self::$baseUrl);
+        $host = $urlParts['host'] ?? '127.0.0.1';
+        $port = (int)($urlParts['port'] ?? 80);
+
+        $socket = @stream_socket_client("tcp://{$host}:{$port}", $errno, $errstr, 4);
+        if ($socket === false) {
+            return ['status' => 0, 'body' => null, 'json' => null, 'error' => $errstr ?: 'socket connect failed'];
+        }
+
+        $bodyContent = '';
         if ($jsonBody !== null) {
-            $headers .= "Content-Type: application/json\r\n";
-            $content = json_encode($jsonBody);
+            $bodyContent = json_encode($jsonBody);
+            if (!is_string($bodyContent)) $bodyContent = '';
         }
 
-        $opts = [
-            'http' => [
-                'method' => $method,
-                'ignore_errors' => true,
-                'header' => $headers,
-            ],
-        ];
-        if ($content !== null) {
-            $opts['http']['content'] = $content;
+        $reqLines = [];
+        $reqLines[] = "{$method} {$path} HTTP/1.1";
+        $reqLines[] = "Host: {$host}";
+        $reqLines[] = "Accept: application/json";
+        $reqLines[] = "Connection: close";
+        if ($jsonBody !== null) {
+            $reqLines[] = "Content-Type: application/json";
+            $reqLines[] = "Content-Length: " . strlen($bodyContent);
         }
 
-        $ctx = stream_context_create($opts);
-        $body = file_get_contents(self::$baseUrl . $path, false, $ctx);
-        $status = 0;
-        $respHeaders = $http_response_header ?? [];
-        foreach ($respHeaders as $h) {
-            if (preg_match('#^HTTP/\\S+\\s+(\\d+)#', $h, $m)) {
-                $status = (int)$m[1];
-                break;
+        $rawReq = implode("\r\n", $reqLines) . "\r\n\r\n" . $bodyContent;
+        fwrite($socket, $rawReq);
+        stream_set_timeout($socket, 10);
+
+        $rawResp = '';
+        while (!feof($socket)) {
+            $chunk = fread($socket, 8192);
+            if ($chunk === false) break;
+            if ($chunk === '') {
+                $meta = stream_get_meta_data($socket);
+                if (($meta['timed_out'] ?? false) === true) break;
+                usleep(10_000);
+                continue;
             }
+            $rawResp .= $chunk;
+        }
+        fclose($socket);
+
+        if (!is_string($rawResp) || $rawResp === '') {
+            return ['status' => 0, 'body' => null, 'json' => null, 'error' => 'empty response'];
+        }
+
+        $headerBlock = '';
+        $body = '';
+        if (str_contains($rawResp, "\r\n\r\n")) {
+            $parts = explode("\r\n\r\n", $rawResp, 2);
+            $headerBlock = $parts[0] ?? '';
+            $body = $parts[1] ?? '';
+        } elseif (str_contains($rawResp, "\n\n")) {
+            $parts = explode("\n\n", $rawResp, 2);
+            $headerBlock = $parts[0] ?? '';
+            $body = $parts[1] ?? '';
+        } else {
+            // Unexpected format; treat as body for debugging.
+            $body = $rawResp;
+        }
+
+        $status = 0;
+        $headerLines = preg_split("/\r\n|\n/", $headerBlock) ?: [];
+        if (isset($headerLines[0]) && preg_match('#^HTTP/\\S+\\s+(\\d+)#', $headerLines[0], $m)) {
+            $status = (int)$m[1];
+        }
+
+        $headersLower = [];
+        foreach ($headerLines as $line) {
+            $pos = strpos($line, ':');
+            if ($pos === false) continue;
+            $k = strtolower(trim(substr($line, 0, $pos)));
+            $v = trim(substr($line, $pos + 1));
+            if ($k !== '') $headersLower[$k] = $v;
+        }
+
+        if (($headersLower['transfer-encoding'] ?? '') === 'chunked') {
+            $decoded = '';
+            $rest = $body;
+            while (true) {
+                $lineEnd = strpos($rest, "\r\n");
+                if ($lineEnd === false) break;
+                $lenHex = trim(substr($rest, 0, $lineEnd));
+                $len = hexdec($lenHex);
+                $rest = substr($rest, $lineEnd + 2);
+                if ($len <= 0) break;
+                $decoded .= substr($rest, 0, $len);
+                $rest = substr($rest, $len);
+                if (str_starts_with($rest, "\r\n")) $rest = substr($rest, 2);
+            }
+            $body = $decoded;
         }
 
         $json = null;
@@ -184,13 +278,38 @@ final class ApiIntegrationTest extends TestCase
             if (is_array($decoded)) $json = $decoded;
         }
 
-        return ['status' => $status, 'body' => $body, 'json' => $json];
+        $serverOut = '';
+        $serverErr = '';
+        if (!empty(self::$pipes)) {
+            if (isset(self::$pipes[1]) && is_resource(self::$pipes[1])) $serverOut = stream_get_contents(self::$pipes[1]) ?: '';
+            if (isset(self::$pipes[2]) && is_resource(self::$pipes[2])) $serverErr = stream_get_contents(self::$pipes[2]) ?: '';
+        }
+
+        return [
+            'status' => $status,
+            'body' => $body,
+            'json' => $json,
+            'headers' => $headersLower,
+            'server_stdout' => $serverOut,
+            'server_stderr' => $serverErr,
+        ];
     }
 
     private function assertHttpOk(array $res): void
     {
         $body = is_string($res['body'] ?? null) ? $res['body'] : '';
-        $this->assertSame(200, $res['status'], $body !== '' ? "Response body: {$body}" : 'Non-200 response');
+        if ($body !== '' && strlen($body) > 2000) {
+            $body = substr($body, 0, 2000) . '…';
+        }
+
+        $diag = 'Non-200 response';
+        if ($body !== '') $diag .= " | body={$body}";
+        if (!empty($res['headers']) && is_array($res['headers'])) $diag .= ' | headers=' . json_encode($res['headers']);
+        if (!empty($res['error'])) $diag .= ' | error=' . $res['error'];
+        if (!empty($res['server_stdout'])) $diag .= ' | server_stdout=' . $res['server_stdout'];
+        if (!empty($res['server_stderr'])) $diag .= ' | server_stderr=' . $res['server_stderr'];
+
+        $this->assertSame(200, $res['status'], $diag);
     }
 
     public static function setUpBeforeClass(): void
