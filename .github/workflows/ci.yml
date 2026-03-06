@@ -1,16 +1,18 @@
-name: Deploy (staging)
+name: CI
 
 on:
+  pull_request:
+    branches: [main]
   push:
-    branches: [staging]
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
-  group: deploy-staging
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  test-and-build:
     runs-on: ubuntu-latest
 
     services:
@@ -55,7 +57,7 @@ jobs:
       - name: Install PHP dev dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
 
-      - name: Install
+      - name: Install Node dependencies
         run: npm ci
 
       - name: Wait for MySQL
@@ -87,13 +89,3 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Upload dist/ to shared hosting (FTP)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT }}
-          local-dir: dist/
-          server-dir: ${{ secrets.FTP_SERVER_DIR }}
-          dangerous-clean-slate: ${{ secrets.DEPLOY_CLEAN == 'true' }}

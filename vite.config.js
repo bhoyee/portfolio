@@ -12,4 +12,11 @@ export default defineConfig({
     preserveSymlinks: true,
   },
   plugins: [react()],
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./src/test/setup.js"],
+    globals: true,
+    css: true,
+    pool: "threads",
+  },
 });

@@ -18,6 +18,7 @@ dist
 dist-ssr
 *.local
 .npm-cache
+vendor
 
 # Editor directories and files
 .vscode/*

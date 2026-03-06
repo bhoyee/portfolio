@@ -17,7 +17,9 @@ export const submitContactMessage = async (message) => {
       }
     })() : null;
 
-    const serverError = maybeJson?.error ? `: ${maybeJson.error}` : "";
+    const serverError = maybeJson?.error
+      ? `: ${maybeJson.error}${maybeJson?.hint ? ` — ${maybeJson.hint}` : ""}`
+      : "";
     throw new Error(`Contact request failed (${res.status})${serverError}`);
   }
 

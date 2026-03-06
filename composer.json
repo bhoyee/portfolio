@@ -1,0 +1,17 @@
+{
+  "name": "bhoyee/portfolio",
+  "description": "Portfolio site with optional PHP + MySQL API endpoints.",
+  "type": "project",
+  "require": {
+    "php": ">=8.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.5"
+  },
+  "autoload": {
+    "files": [
+      "public/api/lib/contact-validation.php"
+    ]
+  }
+}
+
