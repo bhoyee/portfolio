@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Menu, X, Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useTheme } from "./ThemeProvider";
+import { toast } from "@/components/ui/use-toast";
+import { fetchCertifications } from "@/api/certificationsApi";
+import { certifications as localCertifications } from "@/data/certifications";
 
-const navLinks = [
+const baseNavLinks = [
   { label: "Skills", href: "#skills" },
-  { label: "Certifications", href: "#certifications" },
   { label: "Projects", href: "#projects" },
   { label: "About", href: "#about" },
   { label: "Blog", href: "/Blog", external: true },
@@ -22,6 +25,23 @@ export default function Navigation() {
 
   const isPortfolioPage = location.pathname === '/' || location.pathname === '/Portfolio';
 
+  const { data: certs = [] } = useQuery({
+    queryKey: ["certifications"],
+    queryFn: fetchCertifications,
+    staleTime: 10 * 60 * 1000,
+    retry: false,
+  });
+
+  const hasCertifications = (Array.isArray(certs) && certs.length > 0) || (localCertifications?.length ?? 0) > 0;
+
+  const navLinks = useMemo(() => {
+    const links = [...baseNavLinks];
+    if (hasCertifications) {
+      links.splice(1, 0, { label: "Certifications", href: "#certifications" });
+    }
+    return links;
+  }, [hasCertifications]);
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", handleScroll);
@@ -35,7 +55,14 @@ export default function Navigation() {
       if (isPortfolioPage) {
         // On portfolio page, just scroll
         const el = document.querySelector(href);
-        if (el) el.scrollIntoView({ behavior: "smooth" });
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        } else if (href === "#certifications") {
+          toast({
+            title: "Certifications",
+            description: "No certifications are available at the moment. Please check back soon.",
+          });
+        }
       } else {
         // On other pages, navigate to portfolio with hash
         navigate(createPageUrl('Portfolio') + href);

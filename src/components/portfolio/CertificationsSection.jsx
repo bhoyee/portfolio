@@ -32,6 +32,8 @@ export default function CertificationsSection() {
   const list = (apiCerts?.length ? apiCerts : localCertifications) || [];
   const shown = expanded ? list : list.slice(0, visibleCount);
 
+  if (list.length === 0) return null;
+
   useEffect(() => {
     const onKeyDown = (e) => {
       if (e.key === "Escape") setActive(null);
@@ -70,20 +72,7 @@ export default function CertificationsSection() {
           </p>
         </motion.div>
 
-        {list.length === 0 ? (
-          <div className="max-w-2xl mx-auto rounded-2xl border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-xl p-6 text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-emerald-600/10 text-emerald-700 dark:text-emerald-300 mb-3">
-              <Award className="w-6 h-6" />
-            </div>
-            <div className="text-slate-900 dark:text-white font-semibold">No certifications added yet</div>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-              Add certifications in the admin panel (recommended) or update{" "}
-              <code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-900">src/data/certifications.js</code>{" "}
-              as a fallback.
-            </p>
-          </div>
-        ) : (
-          <>
+        <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {shown.map((cert, index) => (
               <motion.div
@@ -166,8 +155,7 @@ export default function CertificationsSection() {
                 Showing local demo certifications (backend not available).
               </div>
             )}
-          </>
-        )}
+        </>
       </div>
 
       {active?.fileUrl ? (
