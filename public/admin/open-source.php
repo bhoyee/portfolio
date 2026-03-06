@@ -11,7 +11,7 @@ require_once __DIR__ . '/../api/lib/settings.php';
 $pdo = get_pdo();
 
 function redirect_self() {
-  header('Location: /admin/open-source.php');
+  header('Location: ' . admin_url('open-source.php'));
   exit;
 }
 
@@ -78,12 +78,12 @@ admin_page_header('Open Source');
     </div>
   </div>
   <div class="actions">
-    <a class="btn primary" href="/admin/open-source-edit.php">New Item</a>
+    <a class="btn primary" href="<?php echo htmlspecialchars(admin_url('open-source-edit.php')); ?>">New Item</a>
   </div>
 </div>
 
 <div class="card" style="margin-bottom:14px;">
-  <form method="post" action="/admin/open-source.php" class="row" style="gap:10px;">
+  <form method="post" action="<?php echo htmlspecialchars(admin_url('open-source.php')); ?>" class="row" style="gap:10px;">
     <input type="hidden" name="csrf" value="<?php echo htmlspecialchars(admin_csrf_token()); ?>" />
     <input type="hidden" name="action" value="toggle_enabled" />
     <label style="margin:0; display:flex; align-items:center; gap:10px;">
@@ -100,11 +100,11 @@ admin_page_header('Open Source');
   </div>
 <?php else: ?>
   <div class="card" style="margin-bottom:14px;">
-    <form method="get" action="/admin/open-source.php" class="row" style="gap:10px;">
+    <form method="get" action="<?php echo htmlspecialchars(admin_url('open-source.php')); ?>" class="row" style="gap:10px;">
       <input name="q" placeholder="Search name or repo URL..." value="<?php echo htmlspecialchars($q); ?>" />
       <button class="btn" type="submit">Search</button>
       <?php if ($q !== ''): ?>
-        <a class="btn" href="/admin/open-source.php">Clear</a>
+        <a class="btn" href="<?php echo htmlspecialchars(admin_url('open-source.php')); ?>">Clear</a>
       <?php endif; ?>
       <div class="muted" style="margin-left:auto;"><?php echo count($items); ?> shown</div>
     </form>
@@ -143,8 +143,8 @@ admin_page_header('Open Source');
             <td class="muted" style="font-size:13px;"><?php echo htmlspecialchars((string)($it['updated_at'] ?? $it['created_at'] ?? '')); ?></td>
             <td>
               <div class="actions">
-                <a class="btn" href="/admin/open-source-edit.php?id=<?php echo (int)$it['id']; ?>">Edit</a>
-                <form method="post" action="/admin/open-source-delete.php" onsubmit="return confirm('Delete this item?');" style="margin:0;">
+                <a class="btn" href="<?php echo htmlspecialchars(admin_url('open-source-edit.php')) . '?id=' . (int)$it['id']; ?>">Edit</a>
+                <form method="post" action="<?php echo htmlspecialchars(admin_url('open-source-delete.php')); ?>" onsubmit="return confirm('Delete this item?');" style="margin:0;">
                   <input type="hidden" name="csrf" value="<?php echo htmlspecialchars(admin_csrf_token()); ?>" />
                   <input type="hidden" name="id" value="<?php echo (int)$it['id']; ?>" />
                   <button class="btn danger" type="submit">Delete</button>

@@ -9,7 +9,7 @@ require_once __DIR__ . '/../api/db.php';
 $pdo = get_pdo();
 
 function redirect_list() {
-  header('Location: /admin/open-source.php');
+  header('Location: ' . admin_url('open-source.php'));
   exit;
 }
 
@@ -85,7 +85,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
   if ($name === '' || $repoUrl === '') {
     admin_set_flash('err', 'Name and Repo URL are required.');
-    header('Location: /admin/open-source-edit.php' . ($editing ? ('?id=' . $id) : ''));
+    header('Location: ' . admin_url('open-source-edit.php') . ($editing ? ('?id=' . $id) : ''));
     exit;
   }
 
@@ -156,12 +156,12 @@ admin_page_header($editing ? 'Edit Open Source Item' : 'New Open Source Item');
     <div class="muted" style="margin-top:4px;">Add your project/repo and optional stats/tags.</div>
   </div>
   <div class="actions">
-    <a class="btn" href="/admin/open-source.php">Back</a>
+    <a class="btn" href="<?php echo htmlspecialchars(admin_url('open-source.php')); ?>">Back</a>
   </div>
 </div>
 
 <div class="card">
-  <form method="post" action="/admin/open-source-edit.php<?php echo $editing ? ('?id=' . $id) : ''; ?>">
+  <form method="post" action="<?php echo htmlspecialchars(admin_url('open-source-edit.php')) . ($editing ? ('?id=' . $id) : ''); ?>">
     <input type="hidden" name="csrf" value="<?php echo htmlspecialchars(admin_csrf_token()); ?>" />
 
     <label for="name">Name *</label>
@@ -221,4 +221,3 @@ admin_page_header($editing ? 'Edit Open Source Item' : 'New Open Source Item');
 
 <?php
 admin_page_footer();
-

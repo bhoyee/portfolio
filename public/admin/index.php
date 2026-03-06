@@ -31,7 +31,7 @@ admin_page_header('Dashboard');
 <div class="row" style="margin-bottom:14px;">
   <h1 class="h1" style="margin:0;">Dashboard</h1>
   <div class="actions">
-    <a class="btn primary" href="/admin/post-edit.php">New Post</a>
+    <a class="btn primary" href="<?php echo htmlspecialchars(admin_url('post-edit.php')); ?>">New Post</a>
   </div>
 </div>
 
@@ -69,8 +69,8 @@ admin_page_header('Dashboard');
       <div class="muted" style="margin-top:4px;">Manage your content from one place.</div>
     </div>
     <div class="actions">
-      <a class="btn" href="/admin/posts.php">Manage Posts</a>
-      <a class="btn" href="/" target="_blank" rel="noreferrer">View site</a>
+      <a class="btn" href="<?php echo htmlspecialchars(admin_url('posts.php')); ?>">Manage Posts</a>
+      <a class="btn" href="<?php echo htmlspecialchars(app_url('/')); ?>" target="_blank" rel="noreferrer">View site</a>
     </div>
   </div>
 </div>
