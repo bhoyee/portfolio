@@ -1,6 +1,6 @@
-# Salisu Abdulhamid — Portfolio
+# The Adeboye — Portfolio
 
-Software Engineer with 5+ years of experience building and shipping production web applications. I focus on clean UI, reliable APIs, and pragmatic architecture that scales with real-world requirements.
+Software Engineer with years of experience building and shipping production applications. I focus on clean UI, reliable APIs, and pragmatic architecture that scales with real-world requirements.
 
 This repo contains my portfolio site (React + Vite) with a blog, likes, comments, and a contact form designed to run on typical shared hosting (PHP + MySQL).
 
