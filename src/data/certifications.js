@@ -13,6 +13,7 @@
 // ];
 
 // Demo placeholders (replace with your real certifications).
+// `verifyUrl` is optional. If you don’t have a public verification link, omit it.
 export const certifications = [
   {
     name: "Cloud Fundamentals (Sample)",
