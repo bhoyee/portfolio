@@ -10,7 +10,7 @@ function admin_page_header($title) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title><?php echo htmlspecialchars($title); ?> · Admin</title>
+    <title><?php echo htmlspecialchars($title); ?> - Admin</title>
     <style>
       :root { color-scheme: light dark; }
       *, *::before, *::after { box-sizing: border-box; }
@@ -58,6 +58,7 @@ function admin_page_header($title) {
           <a class="pill" href="/admin/index.php">Dashboard</a>
           <a class="pill" href="/admin/posts.php">Blog Posts</a>
           <a class="pill" href="/admin/certifications.php">Certifications</a>
+          <a class="pill" href="/admin/resume.php">Resume</a>
           <?php if (admin_is_logged_in()): ?>
             <a class="pill" href="/admin/logout.php">Logout</a>
           <?php endif; ?>
