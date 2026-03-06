@@ -21,6 +21,7 @@ const renderContact = () =>
 
 describe("ContactSection", () => {
   it("shows success feedback after a successful submission", async () => {
+    submitContactMessage.mockReset();
     submitContactMessage.mockResolvedValueOnce({ ok: true, mail_sent: true });
 
     const user = userEvent.setup();
@@ -37,6 +38,7 @@ describe("ContactSection", () => {
   });
 
   it("shows error feedback when the request fails", async () => {
+    submitContactMessage.mockReset();
     submitContactMessage.mockRejectedValueOnce(new Error("Contact request failed (500)"));
 
     const user = userEvent.setup();
