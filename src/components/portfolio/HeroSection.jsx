@@ -1,12 +1,23 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Terminal, Code2, Sparkles } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowRight, Terminal, Code2, Sparkles, Download } from "lucide-react";
+import { getResume } from "@/api/resumeApi";
 
 export default function HeroSection() {
   const scrollTo = (href) => {
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
+
+  const { data: resumeData } = useQuery({
+    queryKey: ["resume"],
+    queryFn: getResume,
+    staleTime: 10 * 60 * 1000,
+    retry: false,
+  });
+
+  const resumeUrl = resumeData?.url ?? null;
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 pt-0">
@@ -103,6 +114,19 @@ export default function HeroSection() {
                 >
                   Let's Talk
                 </button>
+
+                {resumeUrl ? (
+                  <a
+                    href={resumeUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    download
+                    className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-900 dark:text-white px-6 py-3 rounded-lg font-semibold border border-slate-300 dark:border-white/10 transition-all backdrop-blur-xl"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download Resume
+                  </a>
+                ) : null}
               </div>
             </motion.div>
 
