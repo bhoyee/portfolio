@@ -35,7 +35,7 @@ const sanitizeSlugForPath = (slug) => {
   return slug;
 };
 
-const upsertMeta = (html, { title, description, url, image }) => {
+const upsertMeta = (html, { title, description, url, image, ogType = "website" }) => {
   const safeTitle = title.replace(/</g, "").replace(/>/g, "");
   const safeDesc = description.replace(/</g, "").replace(/>/g, "");
 
@@ -45,6 +45,7 @@ const upsertMeta = (html, { title, description, url, image }) => {
   out = replace(/<title>.*?<\/title>/i, `<title>${safeTitle}</title>`);
   out = replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, `<meta name="description" content="${safeDesc}" />`);
 
+  out = replace(/<meta\s+property="og:type"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:type" content="${ogType}" />`);
   out = replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:title" content="${safeTitle}" />`);
   out = replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:description" content="${safeDesc}" />`);
   out = replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:url" content="${url}" />`);
@@ -57,6 +58,19 @@ const upsertMeta = (html, { title, description, url, image }) => {
   out = replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/i, `<link rel="canonical" href="${url}" />`);
 
   return out;
+};
+
+const upsertArticleJsonLd = (html, article) => {
+  const payload = JSON.stringify(article);
+  const removeExisting = html.replace(/<script\s+type="application\/ld\+json"\s+data-schema="article">[\s\S]*?<\/script>\s*/i, "");
+
+  if (removeExisting.includes("</head>")) {
+    return removeExisting.replace(
+      /<\/head>/i,
+      `  <script type="application/ld+json" data-schema="article">${payload}</script>\n  </head>`
+    );
+  }
+  return removeExisting;
 };
 
 const run = async () => {
@@ -77,6 +91,28 @@ const run = async () => {
   }
 
   const mdFiles = entries.filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".md")).map((e) => e.name);
+
+  // Pre-render key SPA routes so they get their own metadata when shared on social/search.
+  const portfolioHtml = upsertMeta(indexHtml, {
+    title: "Salisu Adeboye | Software Engineer",
+    description: "Software Engineer with 5+ years of experience building production web applications - clean UI, reliable APIs, and pragmatic architecture.",
+    url: `${SITE_URL}/Portfolio`,
+    image: DEFAULT_IMAGE,
+    ogType: "website",
+  });
+  await fs.mkdir(path.join(distDir, "Portfolio"), { recursive: true });
+  await fs.writeFile(path.join(distDir, "Portfolio", "index.html"), portfolioHtml, "utf8");
+
+  const blogListHtml = upsertMeta(indexHtml, {
+    title: "Blog | salisu.dev",
+    description: "Technical writings on system design, architecture, and lessons learned from building production systems.",
+    url: `${SITE_URL}/Blog`,
+    image: DEFAULT_IMAGE,
+    ogType: "website",
+  });
+  await fs.mkdir(path.join(distDir, "Blog"), { recursive: true });
+  await fs.writeFile(path.join(distDir, "Blog", "index.html"), blogListHtml, "utf8");
+
   for (const file of mdFiles) {
     const raw = await fs.readFile(path.join(blogDir, file), "utf8");
     const { frontmatter, body } = parseFrontmatter(raw);
@@ -96,7 +132,26 @@ const run = async () => {
     const url = `${SITE_URL}/blog/${encodeURIComponent(slug)}`;
     const image = (frontmatter.cover_image || "").toString().trim() || DEFAULT_IMAGE;
 
-    const html = upsertMeta(indexHtml, { title, description: excerpt, url, image });
+    let html = upsertMeta(indexHtml, { title, description: excerpt, url, image, ogType: "article" });
+
+    const datePublished = (frontmatter.date || frontmatter.created_date || "").toString().trim();
+    const tags = Array.isArray(frontmatter.tags) ? frontmatter.tags : [];
+    const articleLd = {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": (frontmatter.title || slug).toString(),
+      "description": excerpt,
+      "image": image,
+      "url": url,
+      "author": {
+        "@type": "Person",
+        "name": "Salisu Adeboye",
+        "url": SITE_URL,
+      },
+      ...(datePublished ? { "datePublished": datePublished } : {}),
+      ...(tags.length ? { "keywords": tags.join(", ") } : {}),
+    };
+    html = upsertArticleJsonLd(html, articleLd);
 
     const targetDir = path.join(distDir, "blog", sanitized);
     await fs.mkdir(targetDir, { recursive: true });
@@ -105,4 +160,3 @@ const run = async () => {
 };
 
 await run();
-
