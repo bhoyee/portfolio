@@ -15,6 +15,7 @@ export default function ContactSection() {
     subject: "",
     message: "",
   });
+  const [website, setWebsite] = useState("");
   const [status, setStatus] = useState("idle");
 
   const handleSubmit = async (e) => {
@@ -22,9 +23,10 @@ export default function ContactSection() {
     setStatus("loading");
 
     try {
-      await submitContactMessage(formData);
+      await submitContactMessage({ ...formData, website });
       setStatus("success");
       setFormData({ name: "", email: "", subject: "", message: "" });
+      setWebsite("");
       setTimeout(() => setStatus("idle"), 3000);
     } catch (error) {
       setStatus("error");
@@ -71,9 +73,21 @@ export default function ContactSection() {
             transition={{ duration: 0.7 }}
             whileHover={{ y: -4 }}
             onSubmit={handleSubmit}
-            className="lg:col-span-3 space-y-6 bg-slate-50 dark:bg-slate-950 p-8 rounded-2xl border border-slate-200 dark:border-white/10 hover:border-emerald-500/30 transition-all duration-300 shadow-xl hover:shadow-2xl relative overflow-hidden"
+            className="group lg:col-span-3 space-y-6 bg-slate-50 dark:bg-slate-950 p-8 rounded-2xl border border-slate-200 dark:border-white/10 hover:border-emerald-500/30 transition-all duration-300 shadow-xl hover:shadow-2xl relative overflow-hidden"
           >
-            <div className="absolute -inset-1 bg-gradient-to-br from-emerald-500/10 via-transparent to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
+            <div className="pointer-events-none absolute -inset-1 bg-gradient-to-br from-emerald-500/10 via-transparent to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
+
+            {/* Honeypot (spam trap). Humans won't see/fill this. */}
+            <input
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              className="hidden"
+              aria-hidden="true"
+            />
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -168,8 +182,8 @@ export default function ContactSection() {
             <div className="space-y-4">
               <ContactLink
                 icon={Mail}
-                label="salisu@example.com"
-                href="mailto:salisu@example.com"
+                label="hello@salisu.dev"
+                href="mailto:hello@salisu.dev"
               />
               <ContactLink
                 icon={Github}
