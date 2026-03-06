@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
       <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          © {new Date().getFullYear()} Salisu Abdulhamid. Built with precision.
+          © {new Date().getFullYear()} Salisu Adeboye. Built with precision.
         </p>
         <div className="flex items-center gap-4">
           <a
@@ -36,3 +36,4 @@ export default function Footer() {
     </footer>
   );
 }
+
