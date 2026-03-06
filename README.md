@@ -1,4 +1,4 @@
-# The Adeboye — Portfolio
+# The Portfolio
 
 Software Engineer with years of experience building and shipping production applications. I focus on clean UI, reliable APIs, and pragmatic architecture that scales with real-world requirements.
 
