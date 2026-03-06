@@ -46,3 +46,18 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   PRIMARY KEY (id),
   INDEX idx_contact_messages_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS certifications (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  issuer VARCHAR(255) NULL,
+  issued VARCHAR(40) NULL,
+  credential_id VARCHAR(120) NULL,
+  verify_url TEXT NULL,
+  file_url TEXT NULL,
+  published TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (id),
+  INDEX idx_certifications_published_created (published, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
