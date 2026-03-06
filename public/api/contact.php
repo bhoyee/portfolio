@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/lib/contact-validation.php';
+require_once __DIR__ . '/lib/mail.php';
 
 function respond($status, $payload) {
   http_response_code($status);
@@ -22,35 +24,20 @@ if ($method !== 'POST') {
 
 $body = read_json_body();
 
-$name = isset($body['name']) ? trim($body['name']) : '';
-$email = isset($body['email']) ? trim($body['email']) : '';
-$subject = isset($body['subject']) ? trim($body['subject']) : '';
-$message = isset($body['message']) ? trim($body['message']) : '';
-$website = isset($body['website']) ? trim($body['website']) : '';
-
 // Honeypot field (spam trap): silently accept but do nothing.
-if ($website !== '') {
+if (contact_should_ignore($body)) {
   respond(200, ['ok' => true]);
 }
 
-if ($name === '' || $email === '' || $message === '') {
-  respond(400, ['ok' => false, 'error' => 'Missing name, email, or message']);
+$validation = contact_validate($body);
+if (!$validation['ok']) {
+  respond(400, ['ok' => false, 'error' => $validation['error']]);
 }
 
-if (mb_strlen($name) > 120) respond(400, ['ok' => false, 'error' => 'name too long']);
-if (mb_strlen($email) > 200) respond(400, ['ok' => false, 'error' => 'email too long']);
-if (mb_strlen($subject) > 200) respond(400, ['ok' => false, 'error' => 'subject too long']);
-if (mb_strlen($message) > 8000) respond(400, ['ok' => false, 'error' => 'message too long']);
-
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-  respond(400, ['ok' => false, 'error' => 'invalid email']);
-}
-
-// Very basic content spam checks.
-$lower = mb_strtolower($message);
-if (substr_count($lower, 'http://') + substr_count($lower, 'https://') > 3) {
-  respond(400, ['ok' => false, 'error' => 'message contains too many links']);
-}
+$name = $validation['data']['name'];
+$email = $validation['data']['email'];
+$subject = $validation['data']['subject'];
+$message = $validation['data']['message'];
 
 $ip = $_SERVER['REMOTE_ADDR'] ?? null;
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
@@ -109,9 +96,14 @@ try {
     'From: Portfolio Contact <hello@salisu.dev>',
     "Reply-To: {$email}",
   ];
-  $mailSent = @mail($to, $mailSubject, $mailBody, implode("\r\n", $headers));
+  $mailSent = portfolio_send_mail($to, $mailSubject, $mailBody, $headers);
 
   respond(200, ['ok' => true, 'mail_sent' => $mailSent ? true : false]);
 } catch (Exception $e) {
-  respond(500, ['ok' => false, 'error' => 'Failed to save message']);
+  error_log('[portfolio-contact] error=' . $e->getMessage());
+  respond(500, [
+    'ok' => false,
+    'error' => 'Failed to save message',
+    'hint' => 'Check that api/db-config.php is set correctly and the contact_messages table exists (run schema.sql or your migrations).',
+  ]);
 }

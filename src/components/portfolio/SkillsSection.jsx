@@ -68,7 +68,7 @@ export default function SkillsSection() {
         </motion.div>
 
         {/* Desktop layout: keep cards readable (avoid ultra-narrow 5-column grid) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+        <div data-testid="skills-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {skillGroups.map((group, index) => (
             <motion.div
               key={group.title}
