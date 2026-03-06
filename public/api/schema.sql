@@ -61,3 +61,28 @@ CREATE TABLE IF NOT EXISTS certifications (
   PRIMARY KEY (id),
   INDEX idx_certifications_published_created (published, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS site_settings (
+  `key` VARCHAR(128) NOT NULL,
+  `value` TEXT NULL,
+  updated_at TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS open_source_projects (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  description TEXT NULL,
+  repo_url TEXT NOT NULL,
+  stars INT UNSIGNED NULL,
+  forks INT UNSIGNED NULL,
+  language VARCHAR(80) NULL,
+  contribution VARCHAR(80) NULL,
+  tags_json TEXT NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  published TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (id),
+  INDEX idx_open_source_projects_pub_sort (published, sort_order, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
