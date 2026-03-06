@@ -1,7 +1,5 @@
 <?php
 
-header('Content-Type: application/json; charset=utf-8');
-
 function db_respond($status, $payload) {
   http_response_code($status);
   echo json_encode($payload);
