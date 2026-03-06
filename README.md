@@ -62,11 +62,11 @@ This repo includes a workflow that builds the site and deploys `dist/` to shared
 
 Configure these GitHub repo secrets:
 
-- `SSH_HOST` — your hosting SSH hostname (or IP)
-- `SSH_PORT` — usually `22`
-- `SSH_USER` — SSH username
-- `SSH_PRIVATE_KEY` — private key for the SSH user (no passphrase recommended for Actions)
-- `SSH_TARGET_DIR` — web root directory (example: `/home/<user>/public_html`)
-- `DEPLOY_CLEAN` — optional: set to `true` to delete target folder contents before upload
-
-The workflow runs `npm ci`, `npm run build`, then uploads `dist/*` to `SSH_TARGET_DIR`.
+- `FTP_SERVER` — FTP host (example: `ftp.yourdomain.com`)
+- `FTP_PORT` — usually `21` (optional)
+- `FTP_USERNAME` — FTP username
+- `FTP_PASSWORD` — FTP password
+- `FTP_SERVER_DIR` — remote web root directory (example: `/public_html/`)
+- `DEPLOY_CLEAN` — optional: set to `true` to delete target folder contents before upload (use with care)
+ 
+The workflow runs `npm ci`, `npm run build`, then uploads `dist/` to `FTP_SERVER_DIR`.

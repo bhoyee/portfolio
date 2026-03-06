@@ -29,28 +29,13 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Optional: clean target folder before upload (set secret DEPLOY_CLEAN=true)
-      - name: Clean remote target
-        if: ${{ secrets.DEPLOY_CLEAN == 'true' }}
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Upload dist/ to shared hosting (FTP)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            set -e
-            mkdir -p "${{ secrets.SSH_TARGET_DIR }}"
-            rm -rf "${{ secrets.SSH_TARGET_DIR }}/*"
-
-      - name: Upload dist/ to shared hosting (SCP)
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: "dist/*"
-          target: ${{ secrets.SSH_TARGET_DIR }}
-          strip_components: 1
-
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          local-dir: dist/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          dangerous-clean-slate: ${{ secrets.DEPLOY_CLEAN == 'true' }}
