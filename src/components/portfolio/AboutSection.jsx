@@ -66,7 +66,7 @@ export default function AboutSection() {
 
             <div className="space-y-4 text-slate-600 dark:text-slate-400 leading-relaxed">
               <p>
-                I'm Adeboye Salisu, a passionate software engineer with over 5 years of 
+                I'm Salisu Adeboye, a passionate software engineer with over 5 years of 
                 experience in building web applications and solving complex problems with code. 
                 I specialize in creating efficient, scalable, and user-friendly solutions.
               </p>
@@ -79,6 +79,28 @@ export default function AboutSection() {
                 When I'm not coding, you can find me mentoring aspiring developers, 
                 contributing to open-source projects, or exploring new technologies.
               </p>
+
+              <div className="pt-2">
+                <h4 className="text-sm font-semibold uppercase tracking-widest text-slate-900 dark:text-white mb-2">
+                  Education
+                </h4>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500" />
+                    <span>
+                      <span className="font-medium text-slate-800 dark:text-slate-200">MSc</span>{" "}
+                      <span className="text-slate-600 dark:text-slate-400">— Master of Science</span>
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500" />
+                    <span>
+                      <span className="font-medium text-slate-800 dark:text-slate-200">BSc</span>{" "}
+                      <span className="text-slate-600 dark:text-slate-400">— Bachelor of Science</span>
+                    </span>
+                  </li>
+                </ul>
+              </div>
             </div>
           </motion.div>
 
