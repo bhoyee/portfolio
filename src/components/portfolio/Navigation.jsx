@@ -10,7 +10,6 @@ const navLinks = [
   { label: "Skills", href: "#skills" },
   { label: "About", href: "#about" },
   { label: "Blog", href: "/Blog", external: true },
-  { label: "Contact", href: "#contact" },
 ];
 
 export default function Navigation() {

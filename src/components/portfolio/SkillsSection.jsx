@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Code2, Database, Cloud, Wrench, Shield } from "lucide-react";
+import { Code2, Database, Cloud, Wrench, Shield, Users } from "lucide-react";
 
 const skillGroups = [
   {
@@ -32,6 +32,12 @@ const skillGroups = [
     icon: Shield,
     color: "from-red-500 to-red-600",
     skills: ["OWASP", "JWT", "OAuth 2.0", "SSL/TLS", "Penetration Testing", "SAST", "Vulnerability Scanning"],
+  },
+  {
+    title: "Soft Skills",
+    icon: Users,
+    color: "from-slate-700 to-slate-900",
+    skills: ["Agile", "Communication", "Collaboration", "Problem Solving", "Ownership", "Stakeholder Management", "Mentorship", "Documentation"],
   },
 ];
 
@@ -77,7 +83,7 @@ export default function SkillsSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               whileHover={{ y: -8, transition: { duration: 0.2 } }}
-              className={`relative group ${group.title === "Security" ? "lg:col-span-2" : ""}`}
+              className="relative group"
             >
               {/* Glow effect */}
               <div className="absolute -inset-1 bg-gradient-to-br from-emerald-500 via-blue-500 to-purple-500 rounded-2xl opacity-0 group-hover:opacity-30 blur-lg transition duration-500" />
