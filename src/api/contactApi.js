@@ -1,5 +1,7 @@
+import { apiPath } from "@/api/apiBase";
+
 export const submitContactMessage = async (message) => {
-  const res = await fetch(`/api/contact.php`, {
+  const res = await fetch(apiPath("api/contact.php"), {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify(message),
