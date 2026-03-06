@@ -64,6 +64,7 @@ final class ApiIntegrationTest extends TestCase
         $pdo->exec('DROP TABLE IF EXISTS post_likes');
         $pdo->exec('DROP TABLE IF EXISTS blog_posts');
         $pdo->exec('DROP TABLE IF EXISTS contact_messages');
+        $pdo->exec('DROP TABLE IF EXISTS certifications');
 
         $statements = array_filter(array_map('trim', explode(';', $sql)));
         foreach ($statements as $stmt) {
