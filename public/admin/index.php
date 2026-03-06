@@ -8,9 +8,22 @@ admin_require_login();
 require_once __DIR__ . '/../api/db.php';
 $pdo = get_pdo();
 
-$total = (int)($pdo->query('SELECT COUNT(*) AS c FROM blog_posts')->fetch()['c'] ?? 0);
-$published = (int)($pdo->query('SELECT COUNT(*) AS c FROM blog_posts WHERE published = 1')->fetch()['c'] ?? 0);
-$drafts = (int)($pdo->query('SELECT COUNT(*) AS c FROM blog_posts WHERE published = 0')->fetch()['c'] ?? 0);
+function safe_count($pdo, $sql) {
+  try {
+    return (int)($pdo->query($sql)->fetch()['c'] ?? 0);
+  } catch (Exception $e) {
+    error_log('[admin-dashboard] count_failed sql=' . $sql . ' err=' . $e->getMessage());
+    return 0;
+  }
+}
+
+$total = safe_count($pdo, 'SELECT COUNT(*) AS c FROM blog_posts');
+$published = safe_count($pdo, 'SELECT COUNT(*) AS c FROM blog_posts WHERE published = 1');
+$drafts = safe_count($pdo, 'SELECT COUNT(*) AS c FROM blog_posts WHERE published = 0');
+
+$certTotal = safe_count($pdo, 'SELECT COUNT(*) AS c FROM certifications');
+$certPublished = safe_count($pdo, 'SELECT COUNT(*) AS c FROM certifications WHERE published = 1');
+$certDrafts = safe_count($pdo, 'SELECT COUNT(*) AS c FROM certifications WHERE published = 0');
 
 admin_page_header('Dashboard');
 ?>
@@ -35,6 +48,18 @@ admin_page_header('Dashboard');
     <div class="muted">Drafts</div>
     <div style="font-size:32px;font-weight:800;margin-top:6px;"><?php echo $drafts; ?></div>
   </div>
+  <div class="card">
+    <div class="muted">Total certifications</div>
+    <div style="font-size:32px;font-weight:800;margin-top:6px;"><?php echo $certTotal; ?></div>
+  </div>
+  <div class="card">
+    <div class="muted">Certifications published</div>
+    <div style="font-size:32px;font-weight:800;margin-top:6px;"><?php echo $certPublished; ?></div>
+  </div>
+  <div class="card">
+    <div class="muted">Certifications hidden</div>
+    <div style="font-size:32px;font-weight:800;margin-top:6px;"><?php echo $certDrafts; ?></div>
+  </div>
 </div>
 
 <div style="margin-top:14px;" class="card">
@@ -51,4 +76,3 @@ admin_page_header('Dashboard');
 </div>
 
 <?php admin_page_footer(); ?>
-
