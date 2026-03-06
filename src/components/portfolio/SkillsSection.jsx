@@ -67,7 +67,8 @@ export default function SkillsSection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        {/* Desktop layout: keep cards readable (avoid ultra-narrow 5-column grid) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {skillGroups.map((group, index) => (
             <motion.div
               key={group.title}
@@ -76,7 +77,7 @@ export default function SkillsSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               whileHover={{ y: -8, transition: { duration: 0.2 } }}
-              className="relative group"
+              className={`relative group ${group.title === "Security" ? "lg:col-span-2" : ""}`}
             >
               {/* Glow effect */}
               <div className="absolute -inset-1 bg-gradient-to-br from-emerald-500 via-blue-500 to-purple-500 rounded-2xl opacity-0 group-hover:opacity-30 blur-lg transition duration-500" />
@@ -84,17 +85,24 @@ export default function SkillsSection() {
               <div className="relative bg-slate-50 dark:bg-slate-950 rounded-2xl p-6 border border-slate-200 dark:border-white/10 hover:border-emerald-500/50 transition-all duration-300 hover:shadow-2xl overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
-                <motion.div 
-                  whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
-                  transition={{ duration: 0.5 }}
-                  className={`relative inline-flex p-3 rounded-xl bg-gradient-to-br ${group.color} mb-4 shadow-lg`}
-                >
-                  <group.icon className="w-6 h-6 text-white" />
-                </motion.div>
-                
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
-                  {group.title}
-                </h3>
+                <div className="relative z-10 flex items-start gap-4 mb-4">
+                  <motion.div
+                    whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                    transition={{ duration: 0.5 }}
+                    className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${group.color} shadow-lg`}
+                  >
+                    <group.icon className="w-6 h-6 text-white" />
+                  </motion.div>
+
+                  <div className="min-w-0">
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                      {group.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      {group.skills.length} technologies
+                    </p>
+                  </div>
+                </div>
                 
                 <div className="flex flex-wrap gap-2 relative z-10">
                   {group.skills.map((skill, idx) => (
@@ -105,7 +113,7 @@ export default function SkillsSection() {
                       viewport={{ once: true }}
                       transition={{ delay: index * 0.1 + idx * 0.05, duration: 0.3 }}
                       whileHover={{ scale: 1.1, y: -2 }}
-                      className="text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 hover:shadow-md transition-all duration-200 backdrop-blur-xl cursor-pointer"
+                      className="text-sm text-slate-600 dark:text-slate-300 bg-white/70 dark:bg-white/5 px-3 py-1.5 rounded-lg border border-slate-200/80 dark:border-white/10 hover:border-emerald-500/50 hover:text-emerald-700 dark:hover:text-emerald-300 hover:shadow-md transition-all duration-200 backdrop-blur-xl cursor-pointer"
                     >
                       {skill}
                     </motion.span>

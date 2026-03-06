@@ -46,6 +46,12 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
   respond(400, ['ok' => false, 'error' => 'invalid email']);
 }
 
+// Very basic content spam checks.
+$lower = mb_strtolower($message);
+if (substr_count($lower, 'http://') + substr_count($lower, 'https://') > 3) {
+  respond(400, ['ok' => false, 'error' => 'message contains too many links']);
+}
+
 $ip = $_SERVER['REMOTE_ADDR'] ?? null;
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
 

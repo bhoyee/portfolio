@@ -27,6 +27,8 @@ If PowerShell blocks `npm` because `npm.ps1` isn't digitally signed:
 - Use `npm.cmd ...` (as shown above), or
 - Run `.\dev.cmd`
 
+Note: the contact/likes/comments PHP endpoints are not executed by the Vite dev server. Those features work after deploying to shared hosting (or running a local PHP server).
+
 ## Blog content
 
 Blog posts can come from either:
@@ -51,6 +53,8 @@ Steps:
 2) Import `public/api/schema.sql` (or create equivalent tables via your migrations).
 3) Copy `public/api/db-config.sample.php` → `public/api/db-config.php` and set credentials (on the server).
 4) Deploy `dist/` to your web root (e.g. `public_html/`). Ensure `dist/api/*.php` exists (it comes from `public/api`).
+
+If you're using Apache/cPanel (common on Namecheap), make sure the generated `dist/.htaccess` is present so SPA routes work without breaking `/api/*.php`.
 
 If the PHP API isn't available, likes/comments fall back to local-only demo storage in the browser (so they won't be shared across visitors).
 
