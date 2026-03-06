@@ -107,7 +107,8 @@ final class ApiIntegrationTest extends TestCase
         $docroot = realpath(__DIR__ . '/../../public');
         if ($docroot === false) throw new RuntimeException('Missing public/ directory');
 
-        $cmd = 'php -S 127.0.0.1:' . $port . ' -t ' . escapeshellarg($docroot);
+        $php = defined('PHP_BINARY') ? PHP_BINARY : 'php';
+        $cmd = escapeshellarg($php) . ' -S 127.0.0.1:' . $port . ' -t ' . escapeshellarg($docroot);
         $descriptors = [
             0 => ['pipe', 'r'],
             1 => ['pipe', 'w'],
@@ -277,7 +278,21 @@ final class ApiIntegrationTest extends TestCase
             if (is_array($decoded)) $json = $decoded;
         }
 
-        return ['status' => $status, 'body' => $body, 'json' => $json, 'headers' => $headersLower];
+        $serverOut = '';
+        $serverErr = '';
+        if (!empty(self::$pipes)) {
+            if (isset(self::$pipes[1]) && is_resource(self::$pipes[1])) $serverOut = stream_get_contents(self::$pipes[1]) ?: '';
+            if (isset(self::$pipes[2]) && is_resource(self::$pipes[2])) $serverErr = stream_get_contents(self::$pipes[2]) ?: '';
+        }
+
+        return [
+            'status' => $status,
+            'body' => $body,
+            'json' => $json,
+            'headers' => $headersLower,
+            'server_stdout' => $serverOut,
+            'server_stderr' => $serverErr,
+        ];
     }
 
     private function assertHttpOk(array $res): void
@@ -291,6 +306,8 @@ final class ApiIntegrationTest extends TestCase
         if ($body !== '') $diag .= " | body={$body}";
         if (!empty($res['headers']) && is_array($res['headers'])) $diag .= ' | headers=' . json_encode($res['headers']);
         if (!empty($res['error'])) $diag .= ' | error=' . $res['error'];
+        if (!empty($res['server_stdout'])) $diag .= ' | server_stdout=' . $res['server_stdout'];
+        if (!empty($res['server_stderr'])) $diag .= ' | server_stderr=' . $res['server_stderr'];
 
         $this->assertSame(200, $res['status'], $diag);
     }
