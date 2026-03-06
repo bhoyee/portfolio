@@ -163,9 +163,23 @@ admin_page_header($isEdit ? 'Edit Post' : 'New Post');
 
     <label for="excerpt">Excerpt</label>
     <textarea id="excerpt" name="excerpt" style="min-height:120px;"><?php echo htmlspecialchars($post['excerpt']); ?></textarea>
+    <div class="help">Short summary shown on the blog list card (1–3 sentences).</div>
 
     <label for="content">Content (HTML or Markdown)</label>
-    <textarea id="content" name="content" required><?php echo htmlspecialchars($post['content']); ?></textarea>
+    <div class="toolbar" role="toolbar" aria-label="Content formatting">
+      <button type="button" class="toolbtn" data-md="h1">H1</button>
+      <button type="button" class="toolbtn" data-md="h2">H2</button>
+      <button type="button" class="toolbtn" data-md="bold"><b>B</b></button>
+      <button type="button" class="toolbtn" data-md="italic"><i>I</i></button>
+      <button type="button" class="toolbtn" data-md="quote">Quote</button>
+      <button type="button" class="toolbtn" data-md="ul">Bullets</button>
+      <button type="button" class="toolbtn" data-md="ol">Numbered</button>
+      <button type="button" class="toolbtn" data-md="link">Link</button>
+      <button type="button" class="toolbtn" data-md="code">Inline code</button>
+      <button type="button" class="toolbtn" data-md="codeblock">Code block</button>
+    </div>
+    <textarea id="content" class="editor" name="content" required><?php echo htmlspecialchars($post['content']); ?></textarea>
+    <div class="help">This field is rendered with Markdown on the site. Use the buttons above to format.</div>
 
     <label for="cover_image">Cover image URL</label>
     <input id="cover_image" name="cover_image" value="<?php echo htmlspecialchars($post['cover_image']); ?>" placeholder="https://..." />
@@ -193,3 +207,99 @@ admin_page_header($isEdit ? 'Edit Post' : 'New Post');
 
 <?php admin_page_footer(); ?>
 
+<script>
+  (function () {
+    const textarea = document.getElementById("content");
+    if (!textarea) return;
+
+    function getSelectionRange(el) {
+      return { start: el.selectionStart || 0, end: el.selectionEnd || 0 };
+    }
+
+    function setSelection(el, start, end) {
+      el.focus();
+      el.setSelectionRange(start, end);
+    }
+
+    function wrapSelection(el, before, after, placeholder) {
+      const { start, end } = getSelectionRange(el);
+      const value = el.value;
+      const selected = value.slice(start, end);
+      const inner = selected || placeholder || "";
+      const next = value.slice(0, start) + before + inner + after + value.slice(end);
+      el.value = next;
+      const cursorStart = start + before.length;
+      const cursorEnd = cursorStart + inner.length;
+      setSelection(el, cursorStart, cursorEnd);
+    }
+
+    function prefixLines(el, prefix) {
+      const { start, end } = getSelectionRange(el);
+      const value = el.value;
+      const selStart = value.lastIndexOf("\n", start - 1) + 1;
+      const selEnd = end;
+      const block = value.slice(selStart, selEnd);
+      const nextBlock = block.split("\n").map(line => (line.trim() === "" ? line : prefix + line)).join("\n");
+      el.value = value.slice(0, selStart) + nextBlock + value.slice(selEnd);
+      setSelection(el, selStart, selStart + nextBlock.length);
+    }
+
+    function insertAtCursor(el, text) {
+      const { start, end } = getSelectionRange(el);
+      const value = el.value;
+      el.value = value.slice(0, start) + text + value.slice(end);
+      const pos = start + text.length;
+      setSelection(el, pos, pos);
+    }
+
+    function heading(level) {
+      const hashes = "#".repeat(level) + " ";
+      prefixLines(textarea, hashes);
+    }
+
+    function link() {
+      const { start, end } = getSelectionRange(textarea);
+      const value = textarea.value;
+      const selected = value.slice(start, end) || "link text";
+      const url = prompt("Paste URL", "https://");
+      if (!url) return;
+      wrapSelection(textarea, "[", `](${url})`, selected);
+    }
+
+    function codeBlock() {
+      const lang = prompt("Code language (optional)", "js");
+      const language = lang ? String(lang).trim() : "";
+      const fence = "```" + language + "\n";
+      wrapSelection(textarea, fence, "\n```", "code here");
+    }
+
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-md]");
+      if (!btn) return;
+      const action = btn.getAttribute("data-md");
+      if (!action) return;
+      e.preventDefault();
+
+      switch (action) {
+        case "h1": heading(1); break;
+        case "h2": heading(2); break;
+        case "bold": wrapSelection(textarea, "**", "**", "bold text"); break;
+        case "italic": wrapSelection(textarea, "_", "_", "italic text"); break;
+        case "quote": prefixLines(textarea, "> "); break;
+        case "ul": prefixLines(textarea, "- "); break;
+        case "ol": prefixLines(textarea, "1. "); break;
+        case "link": link(); break;
+        case "code": wrapSelection(textarea, "`", "`", "code"); break;
+        case "codeblock": codeBlock(); break;
+        default: break;
+      }
+    });
+
+    // Nice-to-have: Tab inserts spaces instead of changing focus.
+    textarea.addEventListener("keydown", (e) => {
+      if (e.key !== "Tab") return;
+      e.preventDefault();
+      insertAtCursor(textarea, "  ");
+    });
+  })();
+</script>
