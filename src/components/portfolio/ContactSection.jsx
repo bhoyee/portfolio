@@ -17,19 +17,31 @@ export default function ContactSection() {
   });
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState("idle");
+  const [feedback, setFeedback] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("loading");
+    setFeedback(null);
 
     try {
-      await submitContactMessage({ ...formData, website });
+      const result = await submitContactMessage({ ...formData, website });
       setStatus("success");
+      setFeedback({
+        type: "success",
+        message: result?.mail_sent === false
+          ? "Message saved. Email notification may be delayed on the server."
+          : "Message sent successfully.",
+      });
       setFormData({ name: "", email: "", subject: "", message: "" });
       setWebsite("");
       setTimeout(() => setStatus("idle"), 3000);
     } catch (error) {
       setStatus("error");
+      setFeedback({
+        type: "error",
+        message: error?.message || "Something went wrong. Please try again.",
+      });
       setTimeout(() => setStatus("idle"), 3000);
     }
   };
@@ -164,6 +176,18 @@ export default function ContactSection() {
                 </>
               )}
             </Button>
+
+            {feedback ? (
+              <div
+                className={`rounded-xl border px-4 py-3 text-sm ${
+                  feedback.type === "success"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/50 dark:bg-emerald-900/20 dark:text-emerald-200"
+                    : "border-rose-200 bg-rose-50 text-rose-900 dark:border-rose-900/50 dark:bg-rose-900/20 dark:text-rose-200"
+                }`}
+              >
+                {feedback.message}
+              </div>
+            ) : null}
           </motion.form>
 
           {/* Contact Links */}
