@@ -6,7 +6,7 @@ require_once __DIR__ . '/_layout.php';
 admin_session_start();
 
 if (admin_is_logged_in()) {
-  header('Location: /admin/index.php');
+  header('Location: ' . admin_url('index.php'));
   exit;
 }
 
@@ -17,17 +17,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   admin_verify_csrf();
   $username = trim((string)($_POST['username'] ?? ''));
   $password = (string)($_POST['password'] ?? '');
-  $next = (string)($_POST['next'] ?? '/admin/index.php');
+  $next = (string)($_POST['next'] ?? admin_url('index.php'));
 
   $res = admin_login($username, $password);
   if ($res['ok']) {
-    header('Location: ' . ($next !== '' ? $next : '/admin/index.php'));
+    header('Location: ' . ($next !== '' ? $next : admin_url('index.php')));
     exit;
   }
   $error = $res['error'] ?? 'Login failed';
 }
 
-$next = (string)($_GET['next'] ?? '/admin/index.php');
+$next = (string)($_GET['next'] ?? admin_url('index.php'));
 
 admin_page_header('Login');
 ?>
@@ -46,7 +46,7 @@ admin_page_header('Login');
     <div class="flash err"><?php echo htmlspecialchars($error); ?></div>
   <?php endif; ?>
 
-  <form method="post" action="/admin/login.php">
+  <form method="post" action="<?php echo htmlspecialchars(admin_url('login.php')); ?>">
     <input type="hidden" name="csrf" value="<?php echo htmlspecialchars(admin_csrf_token()); ?>" />
     <input type="hidden" name="next" value="<?php echo htmlspecialchars($next); ?>" />
 
@@ -63,4 +63,3 @@ admin_page_header('Login');
 </div>
 
 <?php admin_page_footer(); ?>
-

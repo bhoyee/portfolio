@@ -15,7 +15,7 @@ admin_verify_csrf();
 $slug = trim((string)($_POST['slug'] ?? ''));
 if ($slug === '') {
   admin_set_flash('err', 'Missing slug');
-  header('Location: /admin/posts.php');
+  header('Location: ' . admin_url('posts.php'));
   exit;
 }
 
@@ -30,6 +30,5 @@ try {
   admin_set_flash('err', 'Failed to delete post');
 }
 
-header('Location: /admin/posts.php');
+header('Location: ' . admin_url('posts.php'));
 exit;
-

@@ -40,16 +40,16 @@ admin_page_header('Blog Posts');
     <div class="muted" style="margin-top:4px;"><?php echo count($posts); ?> shown</div>
   </div>
   <div class="actions">
-    <a class="btn primary" href="/admin/post-edit.php">New Post</a>
+    <a class="btn primary" href="<?php echo htmlspecialchars(admin_url('post-edit.php')); ?>">New Post</a>
   </div>
 </div>
 
 <div class="card" style="margin-bottom:14px;">
-  <form method="get" action="/admin/posts.php" class="row" style="gap:10px;">
+  <form method="get" action="<?php echo htmlspecialchars(admin_url('posts.php')); ?>" class="row" style="gap:10px;">
     <input name="q" placeholder="Search title or slug…" value="<?php echo htmlspecialchars($q); ?>" />
     <button class="btn" type="submit">Search</button>
     <?php if ($q !== ''): ?>
-      <a class="btn" href="/admin/posts.php">Clear</a>
+      <a class="btn" href="<?php echo htmlspecialchars(admin_url('posts.php')); ?>">Clear</a>
     <?php endif; ?>
   </form>
 </div>
@@ -92,8 +92,8 @@ admin_page_header('Blog Posts');
           <td class="muted"><?php echo htmlspecialchars((string)($p['updated_at'] ?? '')); ?></td>
           <td>
             <div class="actions">
-              <a class="btn" href="/admin/post-edit.php?slug=<?php echo urlencode((string)$p['slug']); ?>">Edit</a>
-              <form method="post" action="/admin/post-delete.php" onsubmit="return confirm('Delete this post?');" style="margin:0;">
+              <a class="btn" href="<?php echo htmlspecialchars(admin_url('post-edit.php')) . '?slug=' . urlencode((string)$p['slug']); ?>">Edit</a>
+              <form method="post" action="<?php echo htmlspecialchars(admin_url('post-delete.php')); ?>" onsubmit="return confirm('Delete this post?');" style="margin:0;">
                 <input type="hidden" name="csrf" value="<?php echo htmlspecialchars(admin_csrf_token()); ?>" />
                 <input type="hidden" name="slug" value="<?php echo htmlspecialchars((string)$p['slug']); ?>" />
                 <button class="btn danger" type="submit">Delete</button>
@@ -107,4 +107,3 @@ admin_page_header('Blog Posts');
 </div>
 
 <?php admin_page_footer(); ?>
-
