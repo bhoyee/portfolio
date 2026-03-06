@@ -10,7 +10,7 @@ export default function Footer() {
         </p>
         <div className="flex items-center gap-4">
           <a
-            href="https://github.com/salisu"
+            href="https://github.com/bhoyee"
             target="_blank"
             rel="noopener noreferrer"
             className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
@@ -18,7 +18,7 @@ export default function Footer() {
             <Github className="w-4 h-4" />
           </a>
           <a
-            href="https://linkedin.com/in/salisu"
+            href="https://www.linkedin.com/in/salisu-adeboye"
             target="_blank"
             rel="noopener noreferrer"
             className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"

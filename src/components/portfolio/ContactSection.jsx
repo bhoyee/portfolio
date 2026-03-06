@@ -188,12 +188,12 @@ export default function ContactSection() {
               <ContactLink
                 icon={Github}
                 label="GitHub"
-                href="https://github.com/salisu"
+                href="https://github.com/bhoyee"
               />
               <ContactLink
                 icon={Linkedin}
                 label="LinkedIn"
-                href="https://linkedin.com/in/salisu"
+                href="https://www.linkedin.com/in/salisu-adeboye"
               />
             </div>
 

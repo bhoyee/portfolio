@@ -9,7 +9,7 @@ const projects = [
     outcome: "Reduced financial data processing latency by 60% for a fintech client handling 50K+ daily transactions.",
     techStack: ["Python", "FastAPI", "PostgreSQL", "Redis", "Docker", "AWS"],
     image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
-    github: "https://github.com/salisu",
+    github: "https://github.com/bhoyee",
     demo: "#",
     notes: {
       problem: "Legacy monolithic system couldn't handle peak transaction loads, causing 2-3s response times.",
@@ -23,7 +23,7 @@ const projects = [
     outcome: "Automated CI/CD for 12 microservices, cutting deployment time from 45 minutes to under 8 minutes.",
     techStack: ["Go", "Kubernetes", "Terraform", "GitHub Actions", "Prometheus"],
     image: "https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=800&q=80",
-    github: "https://github.com/salisu",
+    github: "https://github.com/bhoyee",
     demo: null,
     notes: {
       problem: "Manual deployments across multiple services led to configuration drift and frequent rollback scenarios.",
@@ -37,7 +37,7 @@ const projects = [
     outcome: "Automated classification of 10K+ legal documents monthly with 97% accuracy, saving 120 analyst hours/week.",
     techStack: ["Python", "TensorFlow", "spaCy", "React", "PostgreSQL", "GCP"],
     image: "https://images.unsplash.com/photo-1633356122102-3fe601e05bd2?w=800&q=80",
-    github: "https://github.com/salisu",
+    github: "https://github.com/bhoyee",
     demo: "#",
     notes: {
       problem: "Legal team manually categorized incoming documents — a bottleneck that delayed case processing by days.",
@@ -51,7 +51,7 @@ const projects = [
     outcome: "Delivered sub-second analytics for a SaaS platform serving 200+ enterprise accounts.",
     techStack: ["TypeScript", "Next.js", "ClickHouse", "WebSocket", "Tailwind CSS"],
     image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80",
-    github: "https://github.com/salisu",
+    github: "https://github.com/bhoyee",
     demo: "#",
     notes: {
       problem: "Existing Elasticsearch-based dashboard had 10-15s query times on aggregated data views.",
@@ -140,7 +140,7 @@ export default function ProjectsSection() {
             </div>
 
             <a
-              href="https://github.com/salisu"
+              href="https://github.com/bhoyee"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-300 font-medium hover:border-emerald-500 hover:bg-slate-200 dark:hover:bg-white/5 transition-all backdrop-blur-xl"
