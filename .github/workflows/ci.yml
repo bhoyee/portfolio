@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpass
+          MYSQL_DATABASE: portfolio_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -prootpass"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: "3306"
+      DB_NAME: portfolio_test
+      DB_USER: root
+      DB_PASS: rootpass
+      DB_CHARSET: utf8mb4
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer
+          extensions: pdo_mysql
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install PHP dev dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Wait for MySQL
+        run: |
+          php -r '
+            $dsn = "mysql:host=" . getenv("DB_HOST") . ";port=" . getenv("DB_PORT") . ";dbname=" . getenv("DB_NAME") . ";charset=" . getenv("DB_CHARSET");
+            $user = getenv("DB_USER");
+            $pass = getenv("DB_PASS");
+            $ok = false;
+            for ($i = 0; $i < 60; $i++) {
+              try {
+                new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+                $ok = true;
+                break;
+              } catch (Throwable $e) {
+                usleep(250000);
+              }
+            }
+            if (!$ok) { fwrite(STDERR, "MySQL did not become ready\n"); exit(1); }
+            echo "MySQL ready\n";
+          '
+
+      - name: Test (backend)
+        run: vendor/bin/phpunit
+
+      - name: Test (frontend)
+        run: npm run test:ci
+
+      - name: Build
+        run: npm run build
+
