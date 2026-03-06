@@ -1,5 +1,7 @@
 <?php
 
+header('Content-Type: application/json; charset=utf-8');
+
 require_once __DIR__ . '/db.php';
 
 function respond($status, $payload) {
@@ -89,4 +91,3 @@ $posts = array_map(function ($row) {
 }, $rows);
 
 respond(200, ['posts' => $posts]);
-
