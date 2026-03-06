@@ -13,6 +13,7 @@ function admin_page_header($title) {
     <title><?php echo htmlspecialchars($title); ?> · Admin</title>
     <style>
       :root { color-scheme: light dark; }
+      *, *::before, *::after { box-sizing: border-box; }
       body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background:#0b1220; color:#e5e7eb; }
       a { color: inherit; text-decoration: none; }
       .wrap { max-width: 1050px; margin: 0 auto; padding: 24px; }
@@ -30,7 +31,7 @@ function admin_page_header($title) {
       .btn:hover { border-color: rgba(16,185,129,.6); }
       .btn.primary { background: linear-gradient(135deg, rgba(16,185,129,.95), rgba(5,150,105,.9)); border-color: rgba(16,185,129,.8); color: #04110c; font-weight: 700; }
       .btn.danger { border-color: rgba(239,68,68,.55); }
-      input, textarea, select { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,.12); background: rgba(17,24,39,.65); color: #e5e7eb; }
+      input, textarea, select { width: 100%; max-width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,.12); background: rgba(17,24,39,.65); color: #e5e7eb; }
       textarea { min-height: 220px; resize: vertical; }
       label { display:block; font-size: 13px; color: rgba(229,231,235,.8); margin: 12px 0 6px; }
       table { width: 100%; border-collapse: collapse; }
@@ -73,4 +74,3 @@ function admin_page_footer() {
   </html>
   <?php
 }
-
