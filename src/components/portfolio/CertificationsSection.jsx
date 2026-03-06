@@ -1,10 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Award, ExternalLink } from "lucide-react";
-import { certifications } from "@/data/certifications";
+import { useQuery } from "@tanstack/react-query";
+import { Award, ExternalLink, X } from "lucide-react";
+import { fetchCertifications } from "@/api/certificationsApi";
+import { certifications as localCertifications } from "@/data/certifications";
 
 export default function CertificationsSection() {
   const [expanded, setExpanded] = useState(false);
+  const [active, setActive] = useState(null);
   const defaultVisible = useMemo(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return 6;
     return window.matchMedia("(min-width: 768px)").matches ? 6 : 3;
@@ -20,7 +23,22 @@ export default function CertificationsSection() {
     return () => mql.removeEventListener?.("change", update);
   }, []);
 
-  const shown = expanded ? certifications : certifications.slice(0, visibleCount);
+  const { data: apiCerts = [], isError } = useQuery({
+    queryKey: ["certifications"],
+    queryFn: fetchCertifications,
+    retry: 1,
+  });
+
+  const list = (apiCerts?.length ? apiCerts : localCertifications) || [];
+  const shown = expanded ? list : list.slice(0, visibleCount);
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setActive(null);
+    };
+    window.addEventListener?.("keydown", onKeyDown);
+    return () => window.removeEventListener?.("keydown", onKeyDown);
+  }, []);
 
   return (
     <section
@@ -52,14 +70,16 @@ export default function CertificationsSection() {
           </p>
         </motion.div>
 
-        {certifications.length === 0 ? (
+        {list.length === 0 ? (
           <div className="max-w-2xl mx-auto rounded-2xl border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-xl p-6 text-center">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-emerald-600/10 text-emerald-700 dark:text-emerald-300 mb-3">
               <Award className="w-6 h-6" />
             </div>
             <div className="text-slate-900 dark:text-white font-semibold">No certifications added yet</div>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-              Add entries in <code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-900">src/data/certifications.js</code>.
+              Add certifications in the admin panel (recommended) or update{" "}
+              <code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-900">src/data/certifications.js</code>{" "}
+              as a fallback.
             </p>
           </div>
         ) : (
@@ -108,6 +128,18 @@ export default function CertificationsSection() {
                           </a>
                         </div>
                       ) : null}
+
+                      {cert.fileUrl ? (
+                        <div className="mt-3">
+                          <button
+                            type="button"
+                            onClick={() => setActive(cert)}
+                            className="inline-flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-emerald-800 dark:hover:text-emerald-200"
+                          >
+                            View certificate <ExternalLink className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -115,7 +147,7 @@ export default function CertificationsSection() {
               ))}
             </div>
 
-            {certifications.length > visibleCount && (
+            {(list.length > visibleCount) && (
               <div className="mt-10 flex justify-center">
                 <button
                   type="button"
@@ -124,13 +156,83 @@ export default function CertificationsSection() {
                 >
                   {expanded
                     ? "Show less"
-                    : `Show all certifications (${certifications.length})`}
+                    : `Show all certifications (${list.length})`}
                 </button>
+              </div>
+            )}
+
+            {isError && (
+              <div className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
+                Showing local demo certifications (backend not available).
               </div>
             )}
           </>
         )}
       </div>
+
+      {active?.fileUrl ? (
+        <div
+          className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setActive(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Certificate preview"
+        >
+          <div
+            className="w-full max-w-4xl bg-white dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-white/10">
+              <div className="min-w-0">
+                <div className="font-semibold text-slate-900 dark:text-white truncate">
+                  {active.name}
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                  {active.issuer || ""}{active.issued ? ` · ${active.issued}` : ""}
+                </div>
+              </div>
+              <button
+                type="button"
+                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-700 dark:text-slate-200"
+                onClick={() => setActive(null)}
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="bg-slate-50 dark:bg-slate-900">
+              {active.fileUrl.toLowerCase().endsWith(".pdf") ? (
+                <iframe
+                  title="Certificate PDF"
+                  src={active.fileUrl}
+                  className="w-full h-[70vh] bg-white"
+                />
+              ) : (
+                <div className="p-4 flex justify-center">
+                  <img
+                    src={active.fileUrl}
+                    alt={`${active.name} certificate`}
+                    className="max-h-[70vh] w-auto rounded-xl border border-slate-200 dark:border-white/10 bg-white"
+                    loading="lazy"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="px-4 py-3 border-t border-slate-200 dark:border-white/10 flex items-center justify-end gap-2">
+              <a
+                className="inline-flex items-center justify-center rounded-xl border border-slate-300/80 dark:border-white/10 bg-white/80 dark:bg-white/5 px-4 py-2 text-sm font-medium text-slate-800 dark:text-slate-100 hover:border-emerald-500/60 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+                href={active.fileUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open in new tab
+              </a>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

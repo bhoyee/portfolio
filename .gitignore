@@ -4,6 +4,7 @@
 public/api/db-config.php
 backend/api/db-config.php
 public/admin/admin-config.php
+public/uploads/certificates
 
 # Logs
 logs
