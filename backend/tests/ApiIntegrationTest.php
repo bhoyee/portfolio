@@ -113,22 +113,13 @@ final class ApiIntegrationTest extends TestCase
             2 => ['pipe', 'w'],
         ];
 
-        $env = array_merge($_ENV, $_SERVER);
-
-        // Ensure the server process gets DB_* vars even if PHP doesn't populate $_ENV.
-        foreach (['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS', 'DB_PORT', 'DB_CHARSET'] as $k) {
-            $v = getenv($k);
-            if ($v !== false) $env[$k] = (string)$v;
-        }
-
-        // Ensure contact endpoint uses a testable mail transport.
+        // Ensure contact endpoint uses a testable mail transport (inherited by the server process).
         $mailLog = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'portfolio-mail-integration.log';
         putenv('MAIL_TRANSPORT=log');
         putenv('MAIL_LOG_PATH=' . $mailLog);
-        $env['MAIL_TRANSPORT'] = 'log';
-        $env['MAIL_LOG_PATH'] = $mailLog;
 
-        self::$proc = proc_open($cmd, $descriptors, $pipes, realpath(__DIR__ . '/../../'), $env);
+        // Let the server inherit the current environment (DB_* from CI, MAIL_* from putenv above).
+        self::$proc = proc_open($cmd, $descriptors, $pipes, realpath(__DIR__ . '/../../'));
         if (!is_resource(self::$proc)) throw new RuntimeException('Failed to start PHP built-in server');
 
         self::$baseUrl = 'http://127.0.0.1:' . $port;
@@ -138,7 +129,7 @@ final class ApiIntegrationTest extends TestCase
         for ($i = 0; $i < 40; $i++) {
             $ctx = stream_context_create(['http' => ['ignore_errors' => true]]);
             $resp = @file_get_contents(self::$baseUrl . '/api/posts.php?limit=1', false, $ctx);
-            if ($resp !== false) {
+            if ($resp !== false && $resp !== '') {
                 $ready = true;
                 break;
             }
@@ -196,6 +187,12 @@ final class ApiIntegrationTest extends TestCase
         return ['status' => $status, 'body' => $body, 'json' => $json];
     }
 
+    private function assertHttpOk(array $res): void
+    {
+        $body = is_string($res['body'] ?? null) ? $res['body'] : '';
+        $this->assertSame(200, $res['status'], $body !== '' ? "Response body: {$body}" : 'Non-200 response');
+    }
+
     public static function setUpBeforeClass(): void
     {
         self::requireDbEnvOrSkip();
@@ -215,7 +212,7 @@ final class ApiIntegrationTest extends TestCase
     public function testPostsListReturnsSeededPost(): void
     {
         $res = self::request('GET', '/api/posts.php?limit=10');
-        $this->assertSame(200, $res['status']);
+        $this->assertHttpOk($res);
         $this->assertIsArray($res['json']);
         $this->assertArrayHasKey('posts', $res['json']);
 
@@ -226,7 +223,7 @@ final class ApiIntegrationTest extends TestCase
     public function testPostsSingleReturnsContent(): void
     {
         $res = self::request('GET', '/api/posts.php?slug=hello-world');
-        $this->assertSame(200, $res['status']);
+        $this->assertHttpOk($res);
         $this->assertSame('hello-world', $res['json']['post']['slug']);
         $this->assertStringContainsString('Test post content', $res['json']['post']['content']);
     }
@@ -234,17 +231,17 @@ final class ApiIntegrationTest extends TestCase
     public function testLikesToggleFlow(): void
     {
         $res0 = self::request('GET', '/api/likes.php?slug=hello-world&user_id=test-user');
-        $this->assertSame(200, $res0['status']);
+        $this->assertHttpOk($res0);
         $this->assertSame(0, $res0['json']['count']);
         $this->assertFalse($res0['json']['liked']);
 
         $res1 = self::request('POST', '/api/likes.php', ['slug' => 'hello-world', 'user_id' => 'test-user']);
-        $this->assertSame(200, $res1['status']);
+        $this->assertHttpOk($res1);
         $this->assertSame(1, $res1['json']['count']);
         $this->assertTrue($res1['json']['liked']);
 
         $res2 = self::request('POST', '/api/likes.php', ['slug' => 'hello-world', 'user_id' => 'test-user']);
-        $this->assertSame(200, $res2['status']);
+        $this->assertHttpOk($res2);
         $this->assertSame(0, $res2['json']['count']);
         $this->assertFalse($res2['json']['liked']);
     }
@@ -252,7 +249,7 @@ final class ApiIntegrationTest extends TestCase
     public function testCommentsAddAndList(): void
     {
         $list0 = self::request('GET', '/api/comments.php?slug=hello-world');
-        $this->assertSame(200, $list0['status']);
+        $this->assertHttpOk($list0);
         $this->assertSame([], $list0['json']['comments']);
 
         $add = self::request('POST', '/api/comments.php', [
@@ -261,13 +258,13 @@ final class ApiIntegrationTest extends TestCase
             'author_email' => 'test@example.com',
             'content' => 'Nice post!',
         ]);
-        $this->assertSame(200, $add['status']);
+        $this->assertHttpOk($add);
         $this->assertSame('hello-world', $add['json']['comment']['slug']);
         $this->assertSame('Test User', $add['json']['comment']['author_name']);
         $this->assertSame('Nice post!', $add['json']['comment']['content']);
 
         $list1 = self::request('GET', '/api/comments.php?slug=hello-world');
-        $this->assertSame(200, $list1['status']);
+        $this->assertHttpOk($list1);
         $this->assertCount(1, $list1['json']['comments']);
         $this->assertSame('Nice post!', $list1['json']['comments'][0]['content']);
     }
@@ -284,7 +281,7 @@ final class ApiIntegrationTest extends TestCase
             'message' => 'This is a test message',
             'website' => '',
         ]);
-        $this->assertSame(200, $res['status']);
+        $this->assertHttpOk($res);
         $this->assertTrue($res['json']['ok']);
 
         $pdo = self::pdo();
