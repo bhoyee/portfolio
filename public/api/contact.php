@@ -99,5 +99,10 @@ try {
 
   respond(200, ['ok' => true, 'mail_sent' => $mailSent ? true : false]);
 } catch (Exception $e) {
-  respond(500, ['ok' => false, 'error' => 'Failed to save message']);
+  error_log('[portfolio-contact] error=' . $e->getMessage());
+  respond(500, [
+    'ok' => false,
+    'error' => 'Failed to save message',
+    'hint' => 'Check that api/db-config.php is set correctly and the contact_messages table exists (run schema.sql or your migrations).',
+  ]);
 }
