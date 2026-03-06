@@ -4,6 +4,7 @@ import Navigation from "@/components/portfolio/Navigation";
 import HeroSection from "@/components/portfolio/HeroSection";
 import ProjectsSection from "@/components/portfolio/ProjectsSection";
 import SkillsSection from "@/components/portfolio/SkillsSection";
+import CertificationsSection from "@/components/portfolio/CertificationsSection";
 import AboutSection from "@/components/portfolio/AboutSection";
 import ContactSection from "@/components/portfolio/ContactSection";
 import Footer from "@/components/portfolio/Footer";
@@ -27,8 +28,9 @@ export default function Portfolio() {
     <div className="min-h-screen bg-white dark:bg-slate-950">
       <Navigation />
       <HeroSection />
-      <ProjectsSection />
       <SkillsSection />
+      <CertificationsSection />
+      <ProjectsSection />
       <OpenSourceSection />
       <AboutSection />
       <ContactSection />

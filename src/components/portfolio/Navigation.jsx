@@ -6,8 +6,9 @@ import { createPageUrl } from "@/utils";
 import { useTheme } from "./ThemeProvider";
 
 const navLinks = [
-  { label: "Projects", href: "#projects" },
   { label: "Skills", href: "#skills" },
+  { label: "Certifications", href: "#certifications" },
+  { label: "Projects", href: "#projects" },
   { label: "About", href: "#about" },
   { label: "Blog", href: "/Blog", external: true },
 ];
