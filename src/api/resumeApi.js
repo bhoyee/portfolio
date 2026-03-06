@@ -1,5 +1,7 @@
+import { apiPath } from "@/api/apiBase";
+
 export async function getResume() {
-  const res = await fetch("/api/resume.php", {
+  const res = await fetch(apiPath("api/resume.php"), {
     headers: { Accept: "application/json" },
   });
 
@@ -10,4 +12,3 @@ export async function getResume() {
   const data = await res.json().catch(() => ({}));
   return { url: typeof data?.url === "string" ? data.url : null };
 }
-
