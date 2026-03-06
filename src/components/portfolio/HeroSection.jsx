@@ -66,7 +66,7 @@ export default function HeroSection() {
                     transition={{ delay: 0.7, duration: 0.6 }}
                     className="inline-block text-slate-700 dark:text-slate-300"
                   >
-                    Abdulhamid
+                    Adeboye
                   </motion.span>
                 </h1>
 
@@ -77,7 +77,7 @@ export default function HeroSection() {
                   className="flex items-center gap-3 text-xl text-emerald-600 dark:text-emerald-400 font-mono"
                 >
                   <Code2 className="w-5 h-5" />
-                  <span>Full-Stack Engineer</span>
+                  <span>Software Engineer</span>
                 </motion.div>
               </div>
 
@@ -125,8 +125,8 @@ export default function HeroSection() {
                     <motion.img
                       whileHover={{ scale: 1.1 }}
                       transition={{ duration: 0.6 }}
-                      src="/profile-placeholder.svg"
-                      alt="Salisu Abdulhamid"
+                      src="https://salisu.dev/salisu.png"
+                      alt="Salisu Adeboye"
                       className="w-full h-full object-cover object-top"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-100 via-transparent to-transparent dark:from-slate-900 dark:via-transparent dark:to-transparent opacity-60" />

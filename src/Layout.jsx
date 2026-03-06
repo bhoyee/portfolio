@@ -1,5 +1,6 @@
 import React from "react";
 import { ThemeProvider } from "@/components/portfolio/ThemeProvider";
+import ScrollControls from "@/components/ScrollControls";
 
 export default function Layout({ children }) {
   return (
@@ -23,6 +24,7 @@ export default function Layout({ children }) {
         }
       `}</style>
       {children}
+      <ScrollControls />
       </div>
     </ThemeProvider>
   );

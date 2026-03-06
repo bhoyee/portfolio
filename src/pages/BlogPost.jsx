@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { ArrowLeft, Calendar, Clock, Loader2, Share2, Heart, MessageCircle, Send, CheckCircle2, Facebook, Twitter, Linkedin, Link as LinkIcon } from "lucide-react";
 
@@ -16,8 +16,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
 export default function BlogPost() {
+  const params = useParams();
   const urlParams = new URLSearchParams(window.location.search);
-  const slug = urlParams.get("slug") || urlParams.get("id");
+  const slug = params.slug || urlParams.get("slug") || urlParams.get("id");
 
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [commentForm, setCommentForm] = useState({ author_name: "", author_email: "", content: "" });
