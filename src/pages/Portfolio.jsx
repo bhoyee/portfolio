@@ -9,6 +9,7 @@ import AboutSection from "@/components/portfolio/AboutSection";
 import ContactSection from "@/components/portfolio/ContactSection";
 import Footer from "@/components/portfolio/Footer";
 import OpenSourceSection from "@/components/portfolio/OpenSourceSection.jsx";
+import { toast } from "@/components/ui/use-toast";
 
 export default function Portfolio() {
   const location = useLocation();
@@ -19,6 +20,11 @@ export default function Portfolio() {
         const element = document.querySelector(location.hash);
         if (element) {
           element.scrollIntoView({ behavior: "smooth" });
+        } else if (location.hash === "#certifications") {
+          toast({
+            title: "Certifications",
+            description: "No certifications are available at the moment. Please check back soon.",
+          });
         }
       }, 100);
     }
