@@ -8,6 +8,7 @@ import PageNotFound from './lib/PageNotFound';
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
+const BlogPostPage = Pages.BlogPost;
 
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
@@ -24,6 +25,16 @@ function App() {
               <MainPage />
             </LayoutWrapper>
           } />
+          {BlogPostPage ? (
+            <Route
+              path="/blog/:slug"
+              element={
+                <LayoutWrapper currentPageName="BlogPost">
+                  <BlogPostPage />
+                </LayoutWrapper>
+              }
+            />
+          ) : null}
           {Object.entries(Pages).map(([path, Page]) => (
             <Route
               key={path}

@@ -55,7 +55,7 @@ export default function Navigation() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link
             to={createPageUrl('Portfolio')}
-            className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white"
+            className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900 dark:text-white"
           >
             salisu<span className="text-emerald-600 dark:text-emerald-400">.dev</span>
           </Link>

@@ -6,7 +6,7 @@ const openSourceProjects = [
   {
     name: "Project Name",
     description: "A brief description of what this open source project does and what problem it solves.",
-    repo: "https://github.com/yourusername/project",
+    repo: "https://github.com/bhoyee/project",
     stars: 128,
     forks: 34,
     language: "TypeScript",
@@ -17,7 +17,7 @@ const openSourceProjects = [
   {
     name: "Another OSS Project",
     description: "Description of your contribution to this project and what you built or fixed.",
-    repo: "https://github.com/yourusername/another-project",
+    repo: "https://github.com/bhoyee/another-project",
     stars: 56,
     forks: 12,
     language: "C#",
@@ -28,7 +28,7 @@ const openSourceProjects = [
   {
     name: "Open Source Tool",
     description: "A utility or tool you created or contributed to that helps the developer community.",
-    repo: "https://github.com/yourusername/oss-tool",
+    repo: "https://github.com/bhoyee/oss-tool",
     stars: 210,
     forks: 47,
     language: "JavaScript",

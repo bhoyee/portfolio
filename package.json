@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node --preserve-symlinks --preserve-symlinks-main ./node_modules/vite/bin/vite.js --configLoader native",
-    "build": "node --preserve-symlinks --preserve-symlinks-main ./node_modules/vite/bin/vite.js build --configLoader native",
+    "build": "node ./scripts/generate-sitemap.mjs && node --preserve-symlinks --preserve-symlinks-main ./node_modules/vite/bin/vite.js build --configLoader native && node ./scripts/postbuild-generate-blog-html.mjs",
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc -p ./jsconfig.json",

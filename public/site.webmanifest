@@ -1,0 +1,16 @@
+{
+  "name": "Salisu Adeboye",
+  "short_name": "salisu.dev",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "https://salisu.dev/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}
+

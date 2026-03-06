@@ -146,7 +146,7 @@ function BlogPostCard({ post, index }) {
       whileHover={{ y: -6 }}
     >
       <Link
-        to={createPageUrl("BlogPost") + `?slug=${encodeURIComponent(post.slug)}`}
+        to={`/blog/${encodeURIComponent(post.slug)}`}
         className="group block h-full bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden hover:border-emerald-400 dark:hover:border-emerald-500 shadow-lg shadow-slate-200/50 dark:shadow-slate-950/50 hover:shadow-2xl hover:shadow-emerald-500/20 dark:hover:shadow-emerald-500/30 transition-all duration-500"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 via-transparent to-emerald-500/0 group-hover:from-emerald-500/5 group-hover:to-blue-500/5 transition-all duration-500 pointer-events-none" />
