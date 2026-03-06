@@ -30,7 +30,7 @@ export default function AboutSection() {
     <section id="about" className="py-24 sm:py-32 bg-slate-100 dark:bg-slate-950 relative overflow-hidden">
       {/* Background */}
       <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
-      
+
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -66,19 +66,43 @@ export default function AboutSection() {
 
             <div className="space-y-4 text-slate-600 dark:text-slate-400 leading-relaxed">
               <p>
-                I'm Adeboye Salisu, a passionate software engineer with over 5 years of 
-                experience in building web applications and solving complex problems with code. 
-                I specialize in creating efficient, scalable, and user-friendly solutions.
+                I build dependable software with a focus on clear architecture, strong performance, and a polished user
+                experience.
               </p>
               <p>
-                My journey in tech started when I was 16, tinkering with HTML and CSS. 
-                Since then, I've worked with startups and established companies to bring 
-                their digital visions to life.
+                I enjoy taking a problem from discovery to delivery - turning requirements into practical solutions,
+                writing maintainable code, and improving systems through observability, automation, and iteration.
               </p>
               <p>
-                When I'm not coding, you can find me mentoring aspiring developers, 
-                contributing to open-source projects, or exploring new technologies.
+                My day-to-day work spans cloud-native services, data flows, integrations, and the engineering practices
+                that keep systems reliable - testing, CI/CD, security, and operational readiness.
               </p>
+              <p>
+                I collaborate closely with product and design, care about accessibility and developer experience, and
+                aim to ship features that are easy to operate, easy to extend, and built to last.
+              </p>
+
+              <div className="pt-2">
+                <h4 className="text-sm font-semibold uppercase tracking-widest text-slate-900 dark:text-white mb-2">
+                  Education
+                </h4>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500" />
+                    <span>
+                      <span className="font-medium text-slate-800 dark:text-slate-200">MSc</span>{" "}
+                      <span className="text-slate-600 dark:text-slate-400">- Master of Science</span>
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500" />
+                    <span>
+                      <span className="font-medium text-slate-800 dark:text-slate-200">BSc</span>{" "}
+                      <span className="text-slate-600 dark:text-slate-400">- Bachelor of Science</span>
+                    </span>
+                  </li>
+                </ul>
+              </div>
             </div>
           </motion.div>
 
@@ -105,13 +129,15 @@ export default function AboutSection() {
                   whileHover={{ x: 6 }}
                   className="relative group bg-slate-50 dark:bg-white/5 rounded-xl p-4 border border-slate-200 dark:border-white/10 hover:border-emerald-500/50 transition-all duration-300"
                 >
-                  <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${exp.color} group-hover:w-2 transition-all duration-300`} />
+                  <div
+                    className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${exp.color} group-hover:w-2 transition-all duration-300`}
+                  />
                   <div className="pl-6 group-hover:pl-7 transition-all duration-300">
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                       {exp.title}
                     </h3>
                     <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-1 font-mono">
-                      {exp.company} • {exp.period}
+                      {exp.company} - {exp.period}
                     </p>
                     <p className="text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
                       {exp.description}
