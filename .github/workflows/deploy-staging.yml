@@ -17,14 +17,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
 
+      - name: Install PHP dev dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
       - name: Install
         run: npm ci
+
+      - name: Test (backend)
+        run: vendor/bin/phpunit
+
+      - name: Test (frontend)
+        run: npm run test:ci
 
       - name: Build
         run: npm run build
