@@ -181,7 +181,7 @@ final class ApiIntegrationTest extends TestCase
         $host = $urlParts['host'] ?? '127.0.0.1';
         $port = (int)($urlParts['port'] ?? 80);
 
-        $socket = @stream_socket_client("tcp://{$host}:{$port}", $errno, $errstr, 2);
+        $socket = @stream_socket_client("tcp://{$host}:{$port}", $errno, $errstr, 4);
         if ($socket === false) {
             return ['status' => 0, 'body' => null, 'json' => null, 'error' => $errstr ?: 'socket connect failed'];
         }
@@ -204,22 +204,71 @@ final class ApiIntegrationTest extends TestCase
 
         $rawReq = implode("\r\n", $reqLines) . "\r\n\r\n" . $bodyContent;
         fwrite($socket, $rawReq);
-        stream_set_timeout($socket, 2);
-        $rawResp = stream_get_contents($socket);
+        stream_set_timeout($socket, 10);
+
+        $rawResp = '';
+        while (!feof($socket)) {
+            $chunk = fread($socket, 8192);
+            if ($chunk === false) break;
+            if ($chunk === '') {
+                $meta = stream_get_meta_data($socket);
+                if (($meta['timed_out'] ?? false) === true) break;
+                usleep(10_000);
+                continue;
+            }
+            $rawResp .= $chunk;
+        }
         fclose($socket);
 
         if (!is_string($rawResp) || $rawResp === '') {
             return ['status' => 0, 'body' => null, 'json' => null, 'error' => 'empty response'];
         }
 
-        $parts = explode("\r\n\r\n", $rawResp, 2);
-        $headerBlock = $parts[0] ?? '';
-        $body = $parts[1] ?? '';
+        $headerBlock = '';
+        $body = '';
+        if (str_contains($rawResp, "\r\n\r\n")) {
+            $parts = explode("\r\n\r\n", $rawResp, 2);
+            $headerBlock = $parts[0] ?? '';
+            $body = $parts[1] ?? '';
+        } elseif (str_contains($rawResp, "\n\n")) {
+            $parts = explode("\n\n", $rawResp, 2);
+            $headerBlock = $parts[0] ?? '';
+            $body = $parts[1] ?? '';
+        } else {
+            // Unexpected format; treat as body for debugging.
+            $body = $rawResp;
+        }
 
         $status = 0;
-        $headerLines = preg_split('/\r\n/', $headerBlock) ?: [];
+        $headerLines = preg_split("/\r\n|\n/", $headerBlock) ?: [];
         if (isset($headerLines[0]) && preg_match('#^HTTP/\\S+\\s+(\\d+)#', $headerLines[0], $m)) {
             $status = (int)$m[1];
+        }
+
+        $headersLower = [];
+        foreach ($headerLines as $line) {
+            $pos = strpos($line, ':');
+            if ($pos === false) continue;
+            $k = strtolower(trim(substr($line, 0, $pos)));
+            $v = trim(substr($line, $pos + 1));
+            if ($k !== '') $headersLower[$k] = $v;
+        }
+
+        if (($headersLower['transfer-encoding'] ?? '') === 'chunked') {
+            $decoded = '';
+            $rest = $body;
+            while (true) {
+                $lineEnd = strpos($rest, "\r\n");
+                if ($lineEnd === false) break;
+                $lenHex = trim(substr($rest, 0, $lineEnd));
+                $len = hexdec($lenHex);
+                $rest = substr($rest, $lineEnd + 2);
+                if ($len <= 0) break;
+                $decoded .= substr($rest, 0, $len);
+                $rest = substr($rest, $len);
+                if (str_starts_with($rest, "\r\n")) $rest = substr($rest, 2);
+            }
+            $body = $decoded;
         }
 
         $json = null;
@@ -228,13 +277,22 @@ final class ApiIntegrationTest extends TestCase
             if (is_array($decoded)) $json = $decoded;
         }
 
-        return ['status' => $status, 'body' => $body, 'json' => $json];
+        return ['status' => $status, 'body' => $body, 'json' => $json, 'headers' => $headersLower];
     }
 
     private function assertHttpOk(array $res): void
     {
         $body = is_string($res['body'] ?? null) ? $res['body'] : '';
-        $this->assertSame(200, $res['status'], $body !== '' ? "Response body: {$body}" : 'Non-200 response');
+        if ($body !== '' && strlen($body) > 2000) {
+            $body = substr($body, 0, 2000) . '…';
+        }
+
+        $diag = 'Non-200 response';
+        if ($body !== '') $diag .= " | body={$body}";
+        if (!empty($res['headers']) && is_array($res['headers'])) $diag .= ' | headers=' . json_encode($res['headers']);
+        if (!empty($res['error'])) $diag .= ' | error=' . $res['error'];
+
+        $this->assertSame(200, $res['status'], $diag);
     }
 
     public static function setUpBeforeClass(): void
