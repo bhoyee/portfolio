@@ -125,7 +125,7 @@ export default function HeroSection() {
                     <motion.img
                       whileHover={{ scale: 1.1 }}
                       transition={{ duration: 0.6 }}
-                      src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69923326cd7075c113f726df/cb072ad06_boo1.png"
+                      src="/profile-placeholder.svg"
                       alt="Salisu Abdulhamid"
                       className="w-full h-full object-cover object-top"
                     />
