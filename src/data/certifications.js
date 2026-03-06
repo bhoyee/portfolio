@@ -12,5 +12,27 @@
 //   },
 // ];
 
-export const certifications = [];
-
+// Demo placeholders (replace with your real certifications).
+export const certifications = [
+  {
+    name: "Cloud Fundamentals (Sample)",
+    issuer: "Certification Provider",
+    issued: "2026",
+    credentialId: "SAMPLE-0001",
+    verifyUrl: "https://example.com/verify/SAMPLE-0001",
+  },
+  {
+    name: "Secure Web Development (Sample)",
+    issuer: "Certification Provider",
+    issued: "2025",
+    credentialId: "SAMPLE-0002",
+    verifyUrl: "https://example.com/verify/SAMPLE-0002",
+  },
+  {
+    name: "DevOps & CI/CD (Sample)",
+    issuer: "Certification Provider",
+    issued: "2024",
+    credentialId: "SAMPLE-0003",
+    verifyUrl: "https://example.com/verify/SAMPLE-0003",
+  },
+];
