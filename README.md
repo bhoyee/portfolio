@@ -53,3 +53,20 @@ Steps:
 4) Deploy `dist/` to your web root (e.g. `public_html/`). Ensure `dist/api/*.php` exists (it comes from `public/api`).
 
 If the PHP API isn't available, likes/comments fall back to local-only demo storage in the browser (so they won't be shared across visitors).
+
+## CI/CD (GitHub Actions → shared hosting)
+
+This repo includes a workflow that builds the site and deploys `dist/` to shared hosting when you push to the `staging` branch:
+
+- `.github/workflows/deploy-staging.yml`
+
+Configure these GitHub repo secrets:
+
+- `FTP_SERVER` — FTP host (example: `ftp.yourdomain.com`)
+- `FTP_PORT` — usually `21` (optional)
+- `FTP_USERNAME` — FTP username
+- `FTP_PASSWORD` — FTP password
+- `FTP_SERVER_DIR` — remote web root directory (example: `/public_html/`)
+- `DEPLOY_CLEAN` — optional: set to `true` to delete target folder contents before upload (use with care)
+ 
+The workflow runs `npm ci`, `npm run build`, then uploads `dist/` to `FTP_SERVER_DIR`.
