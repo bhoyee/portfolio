@@ -13,6 +13,28 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpass
+          MYSQL_DATABASE: portfolio_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -prootpass"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: "3306"
+      DB_NAME: portfolio_test
+      DB_USER: root
+      DB_PASS: rootpass
+      DB_CHARSET: utf8mb4
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,6 +44,7 @@ jobs:
         with:
           php-version: "8.2"
           tools: composer
+          extensions: pdo_mysql
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -34,6 +57,26 @@ jobs:
 
       - name: Install
         run: npm ci
+
+      - name: Wait for MySQL
+        run: |
+          php -r '
+            $dsn = "mysql:host=" . getenv("DB_HOST") . ";port=" . getenv("DB_PORT") . ";dbname=" . getenv("DB_NAME") . ";charset=" . getenv("DB_CHARSET");
+            $user = getenv("DB_USER");
+            $pass = getenv("DB_PASS");
+            $ok = false;
+            for ($i = 0; $i < 60; $i++) {
+              try {
+                new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+                $ok = true;
+                break;
+              } catch (Throwable $e) {
+                usleep(250000);
+              }
+            }
+            if (!$ok) { fwrite(STDERR, "MySQL did not become ready\n"); exit(1); }
+            echo "MySQL ready\n";
+          '
 
       - name: Test (backend)
         run: vendor/bin/phpunit

@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/lib/contact-validation.php';
+require_once __DIR__ . '/lib/mail.php';
 
 function respond($status, $payload) {
   http_response_code($status);
@@ -95,7 +96,7 @@ try {
     'From: Portfolio Contact <hello@salisu.dev>',
     "Reply-To: {$email}",
   ];
-  $mailSent = @mail($to, $mailSubject, $mailBody, implode("\r\n", $headers));
+  $mailSent = portfolio_send_mail($to, $mailSubject, $mailBody, $headers);
 
   respond(200, ['ok' => true, 'mail_sent' => $mailSent ? true : false]);
 } catch (Exception $e) {
