@@ -5,9 +5,9 @@ import ProjectCard from "./ProjectCard";
 
 const projects = [
   {
-    name: "Taskora",
-    outcome: "Designed and shipped a multi-tenant project-management platform solo — boards, sprints, calendar, and reporting — from domain model to production, now used daily by a real team.",
-    techStack: ["C#", ".NET", "ASP.NET Core", "EF Core", "PostgreSQL", "React", "TypeScript", "Vercel", "Render"],
+    name: "Taskora - Multi-Tenant Delivery Platform",
+    outcome: "A role-based workspace platform — boards, sprints, calendar, and reporting — built end-to-end from domain model to production, cutting a critical endpoint's response time from an unbounded hang to under 100ms.",
+    techStack: ["C#", ".NET", "ASP.NET Core", "EF Core", "PostgreSQL", "React", "TypeScript"],
     image: `${import.meta.env.BASE_URL}projects/taskora.png`,
     github: "https://github.com/bhoyee/Taskora/",
     demo: "https://taskoraz.vercel.app",
