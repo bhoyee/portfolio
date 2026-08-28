@@ -2,6 +2,22 @@ import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, AlertCircle, Lock, Lightbulb, CheckCircle2 } from "lucide-react";
 
+function NoteContent({ content }) {
+  if (Array.isArray(content)) {
+    return (
+      <ul className="space-y-2">
+        {content.map((point, i) => (
+          <li key={i} className="text-slate-700 dark:text-slate-300 leading-relaxed flex gap-2">
+            <span className="text-emerald-500 dark:text-emerald-400 mt-1.5 flex-shrink-0">•</span>
+            <span>{point}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+  return <p className="text-slate-700 dark:text-slate-300 leading-relaxed">{content}</p>;
+}
+
 export default function ProjectNotesModal({ project, isOpen, onClose }) {
   useEffect(() => {
     if (isOpen) {
@@ -60,9 +76,7 @@ export default function ProjectNotesModal({ project, isOpen, onClose }) {
                 </div>
                 <div className="flex-1">
                   <h4 className="font-bold text-slate-900 dark:text-white mb-2">The Challenge</h4>
-                  <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                    {project.notes.problem}
-                  </p>
+                  <NoteContent content={project.notes.problem} />
                 </div>
               </div>
             </section>
@@ -76,9 +90,7 @@ export default function ProjectNotesModal({ project, isOpen, onClose }) {
                   </div>
                   <div className="flex-1">
                     <h4 className="font-bold text-slate-900 dark:text-white mb-2">Key Constraints</h4>
-                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                      {project.notes.constraint}
-                    </p>
+                    <NoteContent content={project.notes.constraint} />
                   </div>
                 </div>
               </section>
@@ -93,9 +105,7 @@ export default function ProjectNotesModal({ project, isOpen, onClose }) {
                   </div>
                   <div className="flex-1">
                     <h4 className="font-bold text-slate-900 dark:text-white mb-2">Solution Approach</h4>
-                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                      {project.notes.decision}
-                    </p>
+                    <NoteContent content={project.notes.decision} />
                   </div>
                 </div>
               </section>
@@ -110,9 +120,7 @@ export default function ProjectNotesModal({ project, isOpen, onClose }) {
                   </div>
                   <div className="flex-1">
                     <h4 className="font-bold text-slate-900 dark:text-white mb-2">Results & Impact</h4>
-                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                      {project.notes.resolution}
-                    </p>
+                    <NoteContent content={project.notes.resolution} />
                   </div>
                 </div>
               </section>

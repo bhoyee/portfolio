@@ -5,17 +5,33 @@ import ProjectCard from "./ProjectCard";
 
 const projects = [
   {
-    name: "FinTrack API Platform",
-    outcome: "Reduced financial data processing latency by 60% for a fintech client handling 50K+ daily transactions.",
-    techStack: ["Python", "FastAPI", "PostgreSQL", "Redis", "Docker", "AWS"],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
-    github: "https://github.com/bhoyee",
-    demo: "#",
+    name: "Taskora",
+    outcome: "Designed and shipped a multi-tenant project-management platform solo — boards, sprints, calendar, and reporting — from domain model to production, now used daily by a real team.",
+    techStack: ["C#", ".NET", "ASP.NET Core", "EF Core", "PostgreSQL", "React", "TypeScript", "Vercel", "Render"],
+    image: `${import.meta.env.BASE_URL}projects/taskora.png`,
+    github: "https://github.com/bhoyee/Taskora/",
+    demo: "https://taskoraz.vercel.app",
     notes: {
-      problem: "Legacy monolithic system couldn't handle peak transaction loads, causing 2-3s response times.",
-      constraint: "Zero-downtime migration required — the system processed live financial data 24/7.",
-      decision: "Adopted event-driven architecture with Redis queues, decomposed into microservices with FastAPI.",
-      resolution: "Achieved p99 latency under 200ms. Implemented blue-green deployment for seamless cutover.",
+      problem:
+        "Small teams juggling delivery work usually end up split across a generic to-do app for personal tasks, spreadsheets for reporting, and a separate board tool for sprint tracking — none of which share data or reflect who's actually allowed to do what. The goal was to build one coherent workspace product — boards, sprint planning, a calendar, personal to-dos, and manager-facing reports, all backed by the same task/project data — and ship it as a real tool a team would use daily, not a demo shell, designed and built solo end to end: domain model, backend, frontend, deployment, and ongoing operations.",
+      constraint: [
+        "A single data model had to support several very different views (kanban board, sprint planner, calendar, analytics/reports, personal to-do list) without each feature forking its own copy of the data.",
+        "Permissions needed two independent axes: per-workspace roles (Owner/Manager/Member) for normal team use, plus a separate cross-cutting Super Admin capability for platform-level operations — without either one accidentally granting the other's access.",
+        "The same EF Core domain model had to run against SQLite for local development and Postgres in production without the two behaving differently at the edges.",
+        "As the sole engineer, tooling normally owned by a separate platform/SRE team — deploy pipeline, database backups, cross-workspace administration — had to be built in-house rather than assumed.",
+      ],
+      decision: [
+        "Structured the backend as a modular monolith (Domain → Application → Infrastructure → API), so sprints, reports, and the calendar all read and write the same underlying project/task model instead of duplicating logic per feature.",
+        "Built role-based authorization scoped per workspace, layered under a separately-gated Super Admin path for cross-workspace admin pages (platform management, operations, backups) — two authorization models that don't leak into each other.",
+        "Added a public, unauthenticated demo (four role logins, including full admin tooling) so anyone can evaluate the real product without signing up — backed by a fully isolated seed-data identity space and a nightly self-resetting job, after an early version briefly let demo seeding touch the real account's data. Rebuilt with a hard authorization guard and regression tests specifically covering that boundary.",
+        "Moved outbound email (password reset, invites, task/deadline notifications) off the request path into a background dispatcher after discovering it could hang requests and leak timing information about which accounts existed.",
+        "Ships continuously to production (Vercel frontend, Render API, Neon Postgres) with EF Core migrations applied automatically on deploy, gated by a backend and frontend test suite run before every change goes out.",
+      ],
+      resolution: [
+        "A real team runs its day-to-day delivery work through Taskora — boards, sprints, calendar, personal to-dos, and reports — as its actual tool, not a showcase.",
+        "Anyone can evaluate all four role perspectives live via the public demo, with the production account fully isolated from it at the data layer, verified and enforced by automated tests.",
+        "Password-reset response time went from an unbounded hang to ~100ms, closing both a reliability bug and a timing-based account-enumeration leak.",
+      ],
     },
   },
   {
