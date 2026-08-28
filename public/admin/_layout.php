@@ -53,15 +53,15 @@ function admin_page_header($title) {
   <body>
     <div class="top">
       <div class="row" style="width:100%">
-        <div class="brand"><a href="/admin/index.php">Portfolio Admin</a></div>
+        <div class="brand"><a href="<?php echo htmlspecialchars(admin_url('index.php')); ?>">Portfolio Admin</a></div>
         <div class="nav">
-          <a class="pill" href="/admin/index.php">Dashboard</a>
-          <a class="pill" href="/admin/posts.php">Blog Posts</a>
-          <a class="pill" href="/admin/certifications.php">Certifications</a>
-          <a class="pill" href="/admin/open-source.php">Open Source</a>
-          <a class="pill" href="/admin/resume.php">Resume</a>
+          <a class="pill" href="<?php echo htmlspecialchars(admin_url('index.php')); ?>">Dashboard</a>
+          <a class="pill" href="<?php echo htmlspecialchars(admin_url('posts.php')); ?>">Blog Posts</a>
+          <a class="pill" href="<?php echo htmlspecialchars(admin_url('certifications.php')); ?>">Certifications</a>
+          <a class="pill" href="<?php echo htmlspecialchars(admin_url('open-source.php')); ?>">Open Source</a>
+          <a class="pill" href="<?php echo htmlspecialchars(admin_url('resume.php')); ?>">Resume</a>
           <?php if (admin_is_logged_in()): ?>
-            <a class="pill" href="/admin/logout.php">Logout</a>
+            <a class="pill" href="<?php echo htmlspecialchars(admin_url('logout.php')); ?>">Logout</a>
           <?php endif; ?>
         </div>
       </div>

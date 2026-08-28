@@ -1,5 +1,7 @@
+import { apiPath } from "@/api/apiBase";
+
 export const fetchCertifications = async () => {
-  const res = await fetch("/api/certifications.php", {
+  const res = await fetch(apiPath("api/certifications.php"), {
     headers: { Accept: "application/json" },
   });
 
@@ -18,4 +20,3 @@ export const fetchCertifications = async () => {
 
   return Array.isArray(json?.certifications) ? json.certifications : [];
 };
-

@@ -1,5 +1,7 @@
+import { apiPath } from "@/api/apiBase";
+
 export async function fetchOpenSource({ limit = 50 } = {}) {
-  const url = new URL("/api/open-source.php", window.location.origin);
+  const url = new URL(apiPath("api/open-source.php"), window.location.origin);
   url.searchParams.set("limit", String(limit));
 
   const res = await fetch(url.toString(), {
@@ -16,4 +18,3 @@ export async function fetchOpenSource({ limit = 50 } = {}) {
     items: Array.isArray(data?.items) ? data.items : [],
   };
 }
-

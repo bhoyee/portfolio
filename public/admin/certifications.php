@@ -40,16 +40,16 @@ admin_page_header('Certifications');
     <div class="muted" style="margin-top:4px;"><?php echo count($rows); ?> shown</div>
   </div>
   <div class="actions">
-    <a class="btn primary" href="/admin/certification-edit.php">New Certification</a>
+    <a class="btn primary" href="<?php echo htmlspecialchars(admin_url('certification-edit.php')); ?>">New Certification</a>
   </div>
 </div>
 
 <div class="card" style="margin-bottom:14px;">
-  <form method="get" action="/admin/certifications.php" class="row" style="gap:10px;">
+  <form method="get" action="<?php echo htmlspecialchars(admin_url('certifications.php')); ?>" class="row" style="gap:10px;">
     <input name="q" placeholder="Search name or issuer…" value="<?php echo htmlspecialchars($q); ?>" />
     <button class="btn" type="submit">Search</button>
     <?php if ($q !== ''): ?>
-      <a class="btn" href="/admin/certifications.php">Clear</a>
+      <a class="btn" href="<?php echo htmlspecialchars(admin_url('certifications.php')); ?>">Clear</a>
     <?php endif; ?>
   </form>
 </div>
@@ -98,8 +98,8 @@ admin_page_header('Certifications');
           </td>
           <td>
             <div class="actions">
-              <a class="btn" href="/admin/certification-edit.php?id=<?php echo urlencode((string)$c['id']); ?>">Edit</a>
-              <form method="post" action="/admin/certification-delete.php" onsubmit="return confirm('Delete this certification?');" style="margin:0;">
+              <a class="btn" href="<?php echo htmlspecialchars(admin_url('certification-edit.php')) . '?id=' . urlencode((string)$c['id']); ?>">Edit</a>
+              <form method="post" action="<?php echo htmlspecialchars(admin_url('certification-delete.php')); ?>" onsubmit="return confirm('Delete this certification?');" style="margin:0;">
                 <input type="hidden" name="csrf" value="<?php echo htmlspecialchars(admin_csrf_token()); ?>" />
                 <input type="hidden" name="id" value="<?php echo htmlspecialchars((string)$c['id']); ?>" />
                 <button class="btn danger" type="submit">Delete</button>
@@ -113,4 +113,3 @@ admin_page_header('Certifications');
 </div>
 
 <?php admin_page_footer(); ?>
-

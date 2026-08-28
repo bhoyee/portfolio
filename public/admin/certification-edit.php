@@ -13,7 +13,7 @@ function upload_dir_absolute() {
 }
 
 function upload_dir_public_prefix() {
-  return '/uploads/certificates';
+  return app_url('uploads/certificates');
 }
 
 function ensure_upload_dir() {
@@ -68,7 +68,7 @@ if ($isEdit) {
   $row = $stmt->fetch();
   if (!$row) {
     admin_set_flash('err', 'Certification not found');
-    header('Location: /admin/certifications.php');
+    header('Location: ' . admin_url('certifications.php'));
     exit;
   }
   $item = [
@@ -152,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id,
           ]);
           admin_set_flash('ok', 'Certification updated');
-          header('Location: /admin/certification-edit.php?id=' . urlencode((string)$id));
+          header('Location: ' . admin_url('certification-edit.php') . '?id=' . urlencode((string)$id));
           exit;
         }
 
@@ -172,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $newId = (int)$pdo->lastInsertId();
         admin_set_flash('ok', 'Certification created');
-        header('Location: /admin/certification-edit.php?id=' . urlencode((string)$newId));
+        header('Location: ' . admin_url('certification-edit.php') . '?id=' . urlencode((string)$newId));
         exit;
       } catch (Exception $e) {
         $error = 'Failed to save certification';
@@ -200,7 +200,7 @@ admin_page_header($isEdit ? 'Edit Certification' : 'New Certification');
     <div class="muted" style="margin-top:4px;"><?php echo $isEdit ? 'ID ' . htmlspecialchars((string)$id) : 'Add a new certification'; ?></div>
   </div>
   <div class="actions">
-    <a class="btn" href="/admin/certifications.php">Back</a>
+    <a class="btn" href="<?php echo htmlspecialchars(admin_url('certifications.php')); ?>">Back</a>
     <?php if (!empty($item['file_url'])): ?>
       <a class="btn" href="<?php echo htmlspecialchars((string)$item['file_url']); ?>" target="_blank" rel="noreferrer">View file</a>
     <?php endif; ?>
@@ -212,7 +212,7 @@ admin_page_header($isEdit ? 'Edit Certification' : 'New Certification');
 <?php endif; ?>
 
 <div class="card">
-  <form method="post" enctype="multipart/form-data" action="<?php echo $isEdit ? '/admin/certification-edit.php?id=' . urlencode((string)$id) : '/admin/certification-edit.php'; ?>">
+  <form method="post" enctype="multipart/form-data" action="<?php echo $isEdit ? (htmlspecialchars(admin_url('certification-edit.php')) . '?id=' . urlencode((string)$id)) : htmlspecialchars(admin_url('certification-edit.php')); ?>">
     <input type="hidden" name="csrf" value="<?php echo htmlspecialchars(admin_csrf_token()); ?>" />
 
     <label for="name">Name</label>
@@ -242,7 +242,7 @@ admin_page_header($isEdit ? 'Edit Certification' : 'New Certification');
 
     <label for="certificate">Certificate file (PDF/Image, optional)</label>
     <input id="certificate" name="certificate" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/*" />
-    <div class="help">Max size 8MB. Uploaded files are stored in <code>/uploads/certificates</code>.</div>
+    <div class="help">Max size 8MB. Uploaded files are stored in <code><?php echo htmlspecialchars(app_url('uploads/certificates')); ?></code>.</div>
 
     <?php if (!empty($item['file_url'])): ?>
       <label style="display:flex; align-items:center; gap:10px; margin-top:12px;">
@@ -266,4 +266,3 @@ admin_page_header($isEdit ? 'Edit Certification' : 'New Certification');
 </div>
 
 <?php admin_page_footer(); ?>
-

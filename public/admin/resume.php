@@ -13,17 +13,17 @@ if ($uploadsDir === false) {
 
 $resumeDir = rtrim($uploadsDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'resume';
 $resumeFile = $resumeDir . DIRECTORY_SEPARATOR . 'resume.pdf';
-$resumeUrl = '/uploads/resume/resume.pdf';
+$resumeUrl = app_url('uploads/resume/resume.pdf');
 
 function resume_flash_ok($msg) {
   admin_set_flash('ok', $msg);
-  header('Location: /admin/resume.php');
+  header('Location: ' . admin_url('resume.php'));
   exit;
 }
 
 function resume_flash_err($msg) {
   admin_set_flash('err', $msg);
-  header('Location: /admin/resume.php');
+  header('Location: ' . admin_url('resume.php'));
   exit;
 }
 
@@ -129,7 +129,7 @@ admin_page_header('Resume');
           <a class="btn" href="<?php echo htmlspecialchars($resumeUrl); ?>" download>Download</a>
         </div>
 
-        <form method="post" action="/admin/resume.php" onsubmit="return confirm('Delete the current resume?');" style="margin-top:10px;">
+        <form method="post" action="<?php echo htmlspecialchars(admin_url('resume.php')); ?>" onsubmit="return confirm('Delete the current resume?');" style="margin-top:10px;">
           <input type="hidden" name="csrf" value="<?php echo htmlspecialchars(admin_csrf_token()); ?>" />
           <input type="hidden" name="action" value="delete" />
           <button class="btn danger" type="submit">Delete</button>
@@ -140,7 +140,7 @@ admin_page_header('Resume');
 
   <div class="card">
     <h2 class="h1" style="margin-top:0;">Upload</h2>
-    <form method="post" action="/admin/resume.php" enctype="multipart/form-data">
+    <form method="post" action="<?php echo htmlspecialchars(admin_url('resume.php')); ?>" enctype="multipart/form-data">
       <input type="hidden" name="csrf" value="<?php echo htmlspecialchars(admin_csrf_token()); ?>" />
       <input type="hidden" name="action" value="upload" />
 
@@ -157,4 +157,3 @@ admin_page_header('Resume');
 
 <?php
 admin_page_footer();
-

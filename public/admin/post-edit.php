@@ -34,7 +34,7 @@ if ($isEdit) {
   $row = $stmt->fetch();
   if (!$row) {
     admin_set_flash('err', 'Post not found');
-    header('Location: /admin/posts.php');
+    header('Location: ' . admin_url('posts.php'));
     exit;
   }
 
@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ');
         $stmt->execute([$title, $excerpt !== '' ? $excerpt : null, $content, $cover !== '' ? $cover : null, $tagsJson, $published, $rt, $post['slug']]);
         admin_set_flash('ok', 'Post updated');
-        header('Location: /admin/post-edit.php?slug=' . urlencode($post['slug']));
+        header('Location: ' . admin_url('post-edit.php') . '?slug=' . urlencode($post['slug']));
         exit;
       }
 
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $stmt->execute([$newSlug, $title, $excerpt !== '' ? $excerpt : null, $content, $cover !== '' ? $cover : null, $tagsJson, $published, $rt]);
 
       admin_set_flash('ok', 'Post created');
-      header('Location: /admin/post-edit.php?slug=' . urlencode($newSlug));
+      header('Location: ' . admin_url('post-edit.php') . '?slug=' . urlencode($newSlug));
       exit;
     } catch (Exception $e) {
       $error = 'Failed to save post';
@@ -134,9 +134,9 @@ admin_page_header($isEdit ? 'Edit Post' : 'New Post');
     <div class="muted" style="margin-top:4px;"><?php echo $isEdit ? htmlspecialchars($post['slug']) : 'Create a new blog post'; ?></div>
   </div>
   <div class="actions">
-    <a class="btn" href="/admin/posts.php">Back</a>
+    <a class="btn" href="<?php echo htmlspecialchars(admin_url('posts.php')); ?>">Back</a>
     <?php if ($isEdit): ?>
-      <a class="btn" href="/blog/<?php echo urlencode($post['slug']); ?>" target="_blank" rel="noreferrer">Preview</a>
+      <a class="btn" href="<?php echo htmlspecialchars(app_url('blog/' . urlencode($post['slug']))); ?>" target="_blank" rel="noreferrer">Preview</a>
     <?php endif; ?>
   </div>
 </div>
@@ -146,7 +146,7 @@ admin_page_header($isEdit ? 'Edit Post' : 'New Post');
 <?php endif; ?>
 
 <div class="card">
-  <form method="post" action="<?php echo $isEdit ? '/admin/post-edit.php?slug=' . urlencode($post['slug']) : '/admin/post-edit.php'; ?>">
+  <form method="post" action="<?php echo $isEdit ? (htmlspecialchars(admin_url('post-edit.php')) . '?slug=' . urlencode($post['slug'])) : htmlspecialchars(admin_url('post-edit.php')); ?>">
     <input type="hidden" name="csrf" value="<?php echo htmlspecialchars(admin_csrf_token()); ?>" />
 
     <?php if (!$isEdit): ?>

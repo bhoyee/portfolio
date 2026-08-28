@@ -1,3 +1,5 @@
+import { apiPath } from "@/api/apiBase";
+
 const jsonHeaders = { "Content-Type": "application/json" };
 
 const safeJson = async (response) => {
@@ -28,7 +30,10 @@ export const getLikes = async (slug) => {
   const userId = getUserId();
 
   try {
-    const res = await fetch(`/api/likes.php?slug=${encodeURIComponent(slug)}&user_id=${encodeURIComponent(userId)}`, {
+    const url = new URL(apiPath("api/likes.php"), window.location.origin);
+    url.searchParams.set("slug", String(slug));
+    url.searchParams.set("user_id", String(userId));
+    const res = await fetch(url.toString(), {
       headers: { Accept: "application/json" },
     });
     if (!res.ok) throw new Error(`Likes request failed (${res.status})`);
@@ -48,7 +53,7 @@ export const toggleLike = async (slug) => {
   const userId = getUserId();
 
   try {
-    const res = await fetch(`/api/likes.php`, {
+    const res = await fetch(apiPath("api/likes.php"), {
       method: "POST",
       headers: { ...jsonHeaders, Accept: "application/json" },
       body: JSON.stringify({ slug, user_id: userId }),
@@ -72,7 +77,9 @@ export const toggleLike = async (slug) => {
 
 export const getComments = async (slug) => {
   try {
-    const res = await fetch(`/api/comments.php?slug=${encodeURIComponent(slug)}`, {
+    const url = new URL(apiPath("api/comments.php"), window.location.origin);
+    url.searchParams.set("slug", String(slug));
+    const res = await fetch(url.toString(), {
       headers: { Accept: "application/json" },
     });
     if (!res.ok) throw new Error(`Comments request failed (${res.status})`);
@@ -97,7 +104,7 @@ export const addComment = async (slug, comment) => {
   };
 
   try {
-    const res = await fetch(`/api/comments.php`, {
+    const res = await fetch(apiPath("api/comments.php"), {
       method: "POST",
       headers: { ...jsonHeaders, Accept: "application/json" },
       body: JSON.stringify(payload),
@@ -126,4 +133,3 @@ export const addComment = async (slug, comment) => {
     return { comment: newComment, source: "local" };
   }
 };
-
