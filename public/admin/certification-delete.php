@@ -15,7 +15,7 @@ admin_verify_csrf();
 $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 if ($id <= 0) {
   admin_set_flash('err', 'Missing id');
-  header('Location: /admin/certifications.php');
+  header('Location: ' . admin_url('certifications.php'));
   exit;
 }
 
@@ -30,6 +30,5 @@ try {
   admin_set_flash('err', 'Failed to delete certification');
 }
 
-header('Location: /admin/certifications.php');
+header('Location: ' . admin_url('certifications.php'));
 exit;
-

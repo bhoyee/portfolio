@@ -18,7 +18,7 @@ admin_verify_csrf();
 $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 if ($id <= 0) {
   admin_set_flash('err', 'Missing id');
-  header('Location: /admin/open-source.php');
+  header('Location: ' . admin_url('open-source.php'));
   exit;
 }
 
@@ -31,5 +31,5 @@ try {
   admin_set_flash('err', 'Failed to delete item.');
 }
 
-header('Location: /admin/open-source.php');
+header('Location: ' . admin_url('open-source.php'));
 exit;

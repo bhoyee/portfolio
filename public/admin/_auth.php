@@ -1,12 +1,39 @@
 <?php
 
+function admin_base_path() {
+  $script = $_SERVER['SCRIPT_NAME'] ?? '/admin/index.php';
+  $dir = str_replace('\\', '/', dirname((string)$script));
+  $dir = rtrim($dir, '/');
+  if ($dir === '' || $dir === '.') return '/admin';
+  return $dir;
+}
+
+function admin_url($path) {
+  $base = admin_base_path();
+  $path = ltrim((string)$path, '/');
+  return $base . '/' . $path;
+}
+
+function admin_app_base_path() {
+  $adminBase = admin_base_path();
+  $appBase = preg_replace('#/admin$#', '', $adminBase);
+  return $appBase === null ? '' : (string)$appBase;
+}
+
+function app_url($path) {
+  $base = admin_app_base_path();
+  $path = ltrim((string)$path, '/');
+  $full = ($base !== '' ? $base : '') . '/' . $path;
+  return '/' . ltrim($full, '/');
+}
+
 function admin_session_start() {
   if (session_status() === PHP_SESSION_ACTIVE) return;
 
   $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
   session_set_cookie_params([
     'lifetime' => 0,
-    'path' => '/admin',
+    'path' => admin_base_path(),
     'secure' => $secure,
     'httponly' => true,
     'samesite' => 'Strict',
@@ -36,8 +63,8 @@ function admin_is_logged_in() {
 
 function admin_require_login() {
   if (admin_is_logged_in()) return;
-  $next = $_SERVER['REQUEST_URI'] ?? '/admin/index.php';
-  header('Location: /admin/login.php?next=' . urlencode($next));
+  $next = $_SERVER['REQUEST_URI'] ?? admin_url('index.php');
+  header('Location: ' . admin_url('login.php') . '?next=' . urlencode($next));
   exit;
 }
 
@@ -98,4 +125,3 @@ function admin_logout() {
   }
   session_destroy();
 }
-
