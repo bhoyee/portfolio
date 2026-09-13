@@ -35,17 +35,36 @@ const projects = [
     },
   },
   {
-    name: "DevOps Pipeline Orchestrator",
-    outcome: "Automated CI/CD for 12 microservices, cutting deployment time from 45 minutes to under 8 minutes.",
-    techStack: ["Go", "Kubernetes", "Terraform", "GitHub Actions", "Prometheus"],
-    image: "https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=800&q=80",
-    github: "https://github.com/bhoyee",
-    demo: null,
+    name: "GlucoForager — AI-Powered Diabetes Nutrition & Care Platform",
+    outcome: "A daily food-decision assistant for people managing diabetes — AI recipe generation from a photo or pantry list, glucose and meal logging, and a lifecycle retention system — built end-to-end across a FastAPI backend, a React Native mobile app, and a Next.js marketing site + admin console, replacing a broken time-window heuristic with a deterministic idempotency-key design that guarantees exactly-once health logging.",
+    techStack: ["Python", "FastAPI", "PostgreSQL", "SQLAlchemy", "Alembic", "Redis", "React Native (Expo)", "Next.js", "Docker", "Oracle Cloud Infrastructure", "Resend", "Svix"],
+    image: `${import.meta.env.BASE_URL}projects/glucoforager.png`,
+    github: "https://github.com/bhoyee/GlucoForager",
+    demo: "https://www.glucoforager.com",
     notes: {
-      problem: "Manual deployments across multiple services led to configuration drift and frequent rollback scenarios.",
-      constraint: "Team of 4 engineers managing infrastructure alongside feature development — minimal ops bandwidth.",
-      decision: "Built a custom orchestration layer in Go that standardized deployment configs across all services.",
-      resolution: "Reduced deployment failures by 90%. Infrastructure-as-code eliminated configuration drift entirely.",
+      problem:
+        "People with diabetes make food decisions several times a day with incomplete information — what's actually in a recipe, how it affects blood sugar, and whether a meal fits their carb budget. GlucoForager had to turn a photo of a fridge or pantry into a trustworthy, diabetes-aware recipe suggestion, then extend that into ongoing health tracking (glucose readings, meal logs, carb goals) accurate enough for users to actually rely on day to day. Layered on top of the core product, the business needed a way to win back trial users who didn't convert — without the retention emails feeling like generic spam repeating features the user had already seen and declined. The scope spanned four surfaces that all had to stay consistent: a mobile app, a FastAPI backend, a marketing/landing site, and an internal admin console — with a small team maintaining all of them.",
+      constraint: [
+        "Correctness over convenience in health-adjacent data. A duplicated glucose reading isn't cosmetic — it skews trend charts, falsely triggers spike/high/low alerts, and erodes the one thing the feature needs to earn: trust.",
+        "Real usage breaks assumptions that code review doesn't catch. An initial content-plus-time-window duplicate guard passed review but failed real device testing — users could log the same value three times in under a minute without the window ever catching it.",
+        "Marketing copy needed to change without a deploy. Email templates, subject lines, and personalization tokens had to be editable by a non-engineer, in production, with zero downtime.",
+        "Self-hosted, no managed PaaS. The whole stack runs on Docker Compose over Oracle Cloud Infrastructure — no managed database, queue, or app platform to fall back on.",
+        "One feature, four consistent surfaces. Glucose logging semantics (units, context tags, alert thresholds) had to behave identically across the mobile client, the backend API, the analytics recap, and the admin views.",
+      ],
+      decision: [
+        "Backend & data model: FastAPI with SQLAlchemy and Alembic migrations, Redis for caching and rate limiting, deployed via Docker Compose. Every schema change shipped as a reviewable, reversible migration rather than a manual production edit.",
+        "Deterministic duplicate protection: after the naive time-window heuristic failed under real testing, redesigned it around an idempotency-key pattern — the client generates a key on form mount and only regenerates it when a field actually changes, so retrying an unmodified submission reuses the key. The server caches key → row_id in Redis for a TTL and returns the existing row instead of inserting a duplicate, turning 'probably won't duplicate' into 'cannot duplicate' without adding friction for genuine repeat entries.",
+        "Context-aware health tracking: glucose readings carry a context tag (fasting, before/after meal, bedtime) and support backdating via a time-ago selector, which is what lets post-meal spike detection actually fire on real-world logging patterns instead of only the instant of submission. A standalone high/low alert runs independently of meal-linkage so out-of-range readings are never missed just because they weren't tied to a meal.",
+        "Personalized retention system: the win-back email system evolved from a single hardcoded broadcast into a 5-stage lifecycle (day 0/7/14/21/monthly), each with a distinct psychological purpose rather than a repeated feature list, personalized with a {{usage_summary}} token computed from the user's actual recipes generated, meals logged, and glucose readings tracked. Templates live in the database and are editable from the admin console — a copy change takes effect on the next scheduled send with no deploy. Every send is logged with delivery, open, and click timestamps, verified via Svix-signed Resend webhooks, and surfaced on an admin dashboard with a 7/30/90-day filtered summary.",
+        "Consistent, working surfaces: extended the same discipline to the marketing site and admin console — a fully wired contact form with real success/error feedback, a corrected sitemap, and a review pass across every secondary page (features, pricing, download, careers, legal pages) for consistent navigation and footer structure.",
+      ],
+      resolution: [
+        "Eliminated duplicate health log entries by replacing a heuristic that measurably failed in real testing with a deterministic idempotency guarantee — verified end-to-end against the exact failure case that broke the original design.",
+        "Shipped a complete glucose-tracking feature from schema migration to mobile UI: context-tagged logging, backdated entries, a 7/30/90-day trend screen with unit conversion, and a weekly recap now built from real physiological data instead of engagement stats alone.",
+        "Cut retention-copy iteration time from a deploy cycle to zero-deploy edits — non-engineering stakeholders can revise subject lines, headings, and body copy for any lifecycle stage directly in the admin panel, live on the next send.",
+        "Made retention email performance measurable, replacing 'we sent some emails' with a per-send audit trail (sent/opened/clicked, filterable by date range) verified against real webhook deliveries.",
+        "Closed out a landing-page trust gap: fixed a non-functional contact form, dead pricing links in the sitemap, a broken CSS class silently rendering unstyled badges on the pricing table, and replaced a WhatsApp channel CTA nobody was using with a working share-and-review flow.",
+      ],
     },
   },
   {
@@ -80,7 +99,7 @@ const projects = [
 
 export default function ProjectsSection() {
   const [currentPage, setCurrentPage] = useState(1);
-  const projectsPerPage = 2;
+  const projectsPerPage = 3;
   
   const totalPages = Math.ceil(projects.length / projectsPerPage);
   const startIndex = (currentPage - 1) * projectsPerPage;
