@@ -31,6 +31,7 @@ export default function ProjectCard({ project, index }) {
             transition={{ duration: 0.6 }}
             src={project.image}
             alt={project.name}
+            style={project.imagePosition ? { objectPosition: project.imagePosition } : undefined}
             className={
               project.imageFit === "contain"
                 ? "w-full h-full object-contain p-6"

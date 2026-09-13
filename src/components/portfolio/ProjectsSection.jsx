@@ -39,7 +39,7 @@ const projects = [
     outcome: "A daily food-decision assistant for people managing diabetes — AI recipe generation from a photo or pantry list, glucose and meal logging, and a lifecycle retention system — built end-to-end across a FastAPI backend, a React Native mobile app, and a Next.js marketing site + admin console, replacing a broken time-window heuristic with a deterministic idempotency-key design that guarantees exactly-once health logging.",
     techStack: ["Python", "FastAPI", "PostgreSQL", "SQLAlchemy", "Alembic", "Redis", "React Native (Expo)", "Next.js", "Docker", "Oracle Cloud Infrastructure", "Resend", "Svix"],
     image: `${import.meta.env.BASE_URL}projects/glucoforager.png`,
-    imageFit: "contain",
+    imagePosition: "0% center",
     github: "https://github.com/bhoyee/GlucoForager",
     demo: "https://www.glucoforager.com",
     notes: {
@@ -113,7 +113,7 @@ export default function ProjectsSection() {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20" />
       <div className="absolute top-1/4 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       
-      <div className="max-w-6xl mx-auto px-6 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -135,7 +135,7 @@ export default function ProjectsSection() {
           </p>
         </motion.div>
 
-        <div className="mt-14 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+        <div className="mt-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {currentProjects.map((project, index) => (
             <ProjectCard key={project.name} project={project} index={index} />
           ))}
