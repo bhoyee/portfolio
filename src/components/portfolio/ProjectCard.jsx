@@ -1,10 +1,21 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { ExternalLink, Github, FileText } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ExternalLink, Github, FileText, X } from "lucide-react";
 import ProjectNotesModal from "./ProjectNotesModal";
+
+const OUTCOME_PREVIEW_LIMIT = 180;
 
 export default function ProjectCard({ project, index }) {
   const [showModal, setShowModal] = useState(false);
+  const [showDescription, setShowDescription] = useState(false);
+  const isLongOutcome = project.outcome.length > OUTCOME_PREVIEW_LIMIT;
+
+  useEffect(() => {
+    document.body.style.overflow = showDescription ? "hidden" : "unset";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [showDescription]);
 
   return (
     <motion.div
@@ -22,7 +33,7 @@ export default function ProjectCard({ project, index }) {
         <div
           className={`relative h-56 overflow-hidden ${
             project.imageFit === "contain"
-              ? "bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-950/40 dark:to-slate-900"
+              ? project.imageBg || "bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-950/40 dark:to-slate-900"
               : "bg-slate-100 dark:bg-slate-950"
           }`}
         >
@@ -34,7 +45,7 @@ export default function ProjectCard({ project, index }) {
             style={project.imagePosition ? { objectPosition: project.imagePosition } : undefined}
             className={
               project.imageFit === "contain"
-                ? "w-full h-full object-contain p-6"
+                ? `w-full h-full object-contain ${project.imagePadding || "p-6"}`
                 : "w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
             }
           />
@@ -49,9 +60,19 @@ export default function ProjectCard({ project, index }) {
             {project.name}
           </h3>
           
-          <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-            {project.outcome}
-          </p>
+          <div>
+            <p className="text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3">
+              {project.outcome}
+            </p>
+            {isLongOutcome && (
+              <button
+                onClick={() => setShowDescription(true)}
+                className="mt-1 text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
+              >
+                Read more
+              </button>
+            )}
+          </div>
 
           {/* Tech Stack */}
           <div className="flex flex-wrap gap-2">
@@ -101,11 +122,44 @@ export default function ProjectCard({ project, index }) {
       </div>
 
       {/* Modal */}
-      <ProjectNotesModal 
-        project={project} 
-        isOpen={showModal} 
-        onClose={() => setShowModal(false)} 
+      <ProjectNotesModal
+        project={project}
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
       />
+
+      {/* Read more (full description) modal */}
+      <AnimatePresence>
+        {showDescription && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowDescription(false)}
+              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3 }}
+              className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 p-6"
+            >
+              <div className="flex items-start justify-between gap-4 mb-3">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{project.name}</h3>
+                <button
+                  onClick={() => setShowDescription(false)}
+                  className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 flex-shrink-0"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{project.outcome}</p>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

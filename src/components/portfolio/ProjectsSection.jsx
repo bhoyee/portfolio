@@ -39,7 +39,9 @@ const projects = [
     outcome: "A daily food-decision assistant for people managing diabetes — AI recipe generation from a photo or pantry list, glucose and meal logging, and a lifecycle retention system — built end-to-end across a FastAPI backend, a React Native mobile app, and a Next.js marketing site + admin console, replacing a broken time-window heuristic with a deterministic idempotency-key design that guarantees exactly-once health logging.",
     techStack: ["Python", "FastAPI", "PostgreSQL", "SQLAlchemy", "Alembic", "Redis", "React Native (Expo)", "Next.js", "Docker", "Oracle Cloud Infrastructure", "Resend", "Svix"],
     image: `${import.meta.env.BASE_URL}projects/glucoforager.png`,
-    imagePosition: "0% center",
+    imageFit: "contain",
+    imagePadding: "p-3",
+    imageBg: "bg-gradient-to-br from-slate-50 to-emerald-50 dark:from-slate-900 dark:to-emerald-950/30",
     github: "https://github.com/bhoyee/GlucoForager",
     demo: "https://www.glucoforager.com",
     notes: {
