@@ -19,15 +19,27 @@ export default function ProjectCard({ project, index }) {
       
       <div className="relative bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 hover:border-emerald-500/50 transition-all duration-500">
         {/* Image */}
-        <div className="relative h-56 overflow-hidden bg-slate-100 dark:bg-slate-950">
+        <div
+          className={`relative h-56 overflow-hidden ${
+            project.imageFit === "contain"
+              ? "bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-950/40 dark:to-slate-900"
+              : "bg-slate-100 dark:bg-slate-950"
+          }`}
+        >
           <motion.img
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.6 }}
             src={project.image}
             alt={project.name}
-            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+            className={
+              project.imageFit === "contain"
+                ? "w-full h-full object-contain p-6"
+                : "w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+            }
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-100 via-slate-100/50 to-transparent dark:from-slate-900 dark:via-slate-900/50 dark:to-transparent" />
+          {project.imageFit !== "contain" && (
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-100 via-slate-100/50 to-transparent dark:from-slate-900 dark:via-slate-900/50 dark:to-transparent" />
+          )}
         </div>
 
         {/* Content */}
